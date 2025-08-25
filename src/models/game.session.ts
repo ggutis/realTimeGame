@@ -15,7 +15,7 @@ export class GameSession {
     public monsterSpawnQueue: Wave[];
     public isGameOver: boolean;
     public isStageCompleted: boolean;
-    public spawnTimer: NodeJS.Timeout | null; // 몬스터 소환 지연 시간을 위한 타이머
+    public spawnTimer: NodeJS.Timeout | null;
     public monstersSpawnedInWave: number; // 현재 웨이브에서 소환된 몬스터 수
 
     constructor(userId: string) {

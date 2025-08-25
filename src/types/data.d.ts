@@ -70,6 +70,7 @@ export interface ActiveAnimal {
     health: number;
     position: Position;
     attackCooldown: number;
+    isMoving: boolean;
     targetId: string | null;
     damage: number;
 }
@@ -82,5 +83,6 @@ export interface ActiveMonster {
     moveSpeed: number;
     goldDrop: number;
     isAlive: boolean;
+    isMoving: boolean;
     damage: number;
 }

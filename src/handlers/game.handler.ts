@@ -6,18 +6,13 @@ import { GAME } from '../constants.js';
 import {
 	ActiveAnimal,
 	ActiveMonster,
-	Animal,
-	StageUnlock,
-	Stage,
-	Monster,
 } from '../types/data.d';
 import { GameStartPayload, SummonUnitPayload } from '../types/payloads.d';
-import { isMeet, battle } from '../handlers/helper.js'; // isMeet 함수 추가
-import { isWaveCompleted, getStageData, completeStage } from './stage.handler.js';
-import { moveStageHandler } from './stage.handler.js'; // stage.handler에서 moveStageHandler 가져오기
+import { isMeet } from '../handlers/helper.js';
+import { getStageData, completeStage } from './stage.handler.js';
 
 // 모든 활성 게임 세션을 저장합니다.
-const activeSessions: Record<string, GameSession> = {};
+export const activeSessions: Record<string, GameSession> = {};
 let gameLoopInterval: NodeJS.Timeout | null = null;
 
 // 게임 루프: 고정된 간격으로 게임 상태를 업데이트하고 클라이언트에 보냅니다.
@@ -60,8 +55,6 @@ const gameLoop = (io: Server): void => {
 				}
 
 				if (targetMonster) {
-					const monsterData = getAssets().monsters[targetMonster.monsterId];
-
 					// 몬스터가 유닛 사정거리 안에 있는지 확인
 					if (minDistance <= animalData.range) {
 						// 사정거리 안에 들어오면 유닛의 이동을 멈춥니다.
@@ -136,21 +129,14 @@ const gameLoop = (io: Server): void => {
 				console.log('게임 오버!');
 			}
 
-			// 웨이브 완료 확인
-			if (isWaveCompleted(session)) {
-				const currentStage = getStageData(session.currentStageId);
-				if (
-					currentStage &&
-					session.currentWaveIndex < currentStage.waves.length
-				) {
-					session.isSpawning = false;
-					session.monsterSpawnQueue.push(
-						currentStage.waves[session.currentWaveIndex],
-					);
-					session.currentWaveIndex++;
-				} else {
-					completeStage(session);
-				}
+			// 스테이지 완료 확인
+			const isStageDone = !session.isSpawning &&
+				session.monsterSpawnQueue.length === 0 &&
+				Object.keys(session.activeMonsters).length === 0;
+
+			if (isStageDone && session.currentWaveIndex > 0) {
+				completeStage(session);
+				continue;
 			}
 
 			// 클라이언트에 게임 상태 업데이트 전송
@@ -178,10 +164,13 @@ const spawnMonstersForSession = (session: GameSession): void => {
 		const wave = session.monsterSpawnQueue.shift();
 		if (wave) {
 			session.isSpawning = true;
+			session.currentWaveIndex++; // 웨이브 인덱스 증가
 			session.monstersSpawnedInWave = 0;
 			session.spawnTimer = setInterval(() => {
 				if (session.monstersSpawnedInWave >= wave.count) {
-					clearInterval(session.spawnTimer);
+					if (session.spawnTimer) {
+						clearInterval(session.spawnTimer);
+					}
 					session.isSpawning = false;
 					return;
 				}
@@ -194,9 +183,13 @@ const spawnMonstersForSession = (session: GameSession): void => {
 						monsterId: monsterData.id,
 						health: monsterData.health,
 						damage: monsterData.damage,
+						moveSpeed: monsterData.moveSpeed,
+						goldDrop: monsterData.goldDrop,
+						isAlive: true,
+						isMoving: true,
 						position: {
 							x: 800,
-							y: Math.random() * 400 + 100, // 게임 화면에 맞게 Y 위치 조정
+							y: 500, // 게임 화면에 맞게 Y 위치 조정
 						},
 					};
 					session.activeMonsters[monsterId] = newMonster;
@@ -297,9 +290,10 @@ export const summonUnit = async (socket: Socket, payload: SummonUnitPayload): Pr
 		damage: animalData.damage,
 		attackCooldown: 0,
 		isMoving: true,
+		targetId: null,
 		position: {
 			x: payload.position.x,
-			y: payload.position.y,
+			y: 500,
 		},
 	};
 	session.activeAnimals[unitId] = newUnit;
@@ -309,3 +303,42 @@ export const summonUnit = async (socket: Socket, payload: SummonUnitPayload): Pr
 	);
 };
 
+// 다음 스테이지로 이동하는 핸들러
+export const nextStageHandler = (io: Server, socket: Socket, payload: { userId: string }) => {
+    const session = activeSessions[payload.userId];
+    if (!session) {
+        socket.emit('game:error', { message: '세션을 찾을 수 없습니다.' });
+        return;
+    }
+
+    if (!session.isStageCompleted) {
+        socket.emit('game:error', { message: '현재 스테이지가 아직 완료되지 않았습니다.' });
+        return;
+    }
+
+    // 다음 스테이지로 이동
+    session.currentStageId++;
+    const nextStageData = getStageData(session.currentStageId);
+
+    if (!nextStageData) {
+        // 모든 스테이지를 클리어한 경우
+        session.isGameOver = true; // 또는 다른 게임 종료 상태로 처리
+        endGame(io, session);
+        socket.emit('game:end', { message: '모든 스테이지를 클리어했습니다! 축하합니다!', isGameOver: true, score: session.score });
+        return;
+    }
+
+    // 세션 상태 초기화
+    session.isStageCompleted = false;
+    session.monsterSpawnQueue = [...nextStageData.waves];
+    session.currentWaveIndex = 0;
+    session.monstersSpawnedInWave = 0;
+
+    // 클라이언트에게 다음 스테이지 시작을 알림 (선택적)
+    socket.emit('game:stage_started', {
+        currentStageId: session.currentStageId,
+        userGold: session.gold,
+    });
+
+    console.log(`${payload.userId}가 다음 스테이지(${session.currentStageId})로 이동합니다.`);
+};

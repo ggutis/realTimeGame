@@ -1,4 +1,5 @@
 import { Position, ActiveAnimal, ActiveMonster } from '../types/data.d'; // 실제 타입 경로에 맞게 수정
+import { getAssets } from '../init/assets.js';
 
 export function calcDistance(posA: Position, posB: Position): number {
     return Math.hypot(posA.x - posB.x, posA.y - posB.y);

@@ -8,14 +8,7 @@ export function getStageData(stageId: number | string): Stage | undefined {
     return assets.stages[stageId.toString()];
 }
 
-// 웨이브 진행 여부 판단
-export function isWaveCompleted(session: GameSession) {
-    return (
-        !session.isSpawning &&
-        Object.keys(session.activeMonsters).length === 0 &&
-        session.currentWaveIndex >= session.monsterSpawnQueue.length
-    );
-}
+
 
 // 스테이지 완료 처리
 export function completeStage(session: GameSession) {
