@@ -1,0 +1,26 @@
+{
+	"name": "character",
+	"version": "1.0.0",
+	"data": [
+		{
+			"stageId": 1,
+			"unlockedAnimals": ["snake", "rat"]
+		},
+		{
+			"stageId": 2,
+			"unlockedAnimals": ["pigeon", "pig"]
+		},
+		{
+			"stageId": 3,
+			"unlockedAnimals": ["sheep", "wolf"]
+		},
+		{
+			"stageId": 4,
+			"unlockedAnimals": ["cobra", "whiteWolf"]
+		},
+		{
+			"stageId": 5,
+			"unlockedAnimals": ["brownBear", "grizzlyBear"]
+		}
+	]
+}

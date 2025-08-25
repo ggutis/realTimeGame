@@ -1,40 +1,145 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dino Game</title>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>동물 수비대: 실시간 게임</title>
+    <!-- 분리된 CSS 파일 링크 -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Socket.IO 클라이언트 스크립트 -->
+    <script src="/socket.io/socket.io.js"></script>
     <style>
-      * {
-        padding: 0;
-        margin: 0;
-      }
-      body {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-        height: 100vh;
-
-        user-select: none;
-        touch-action: none;
-        -webkit-touch-callout: none;
-        -webkit-user-select: none;
-        -khtml-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        outline: none;
-        -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
-      }
-      canvas {
-        border: 2px solid grey;
-      }
+        @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+    
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #2c3e50;
+            font-family: 'Jua', sans-serif;
+            color: white;
+            flex-direction: column;
+            gap: 20px;
+        }
+        h1 {
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        #game-container {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            background-color: #34495e;
+            border: 5px solid #2c3e50;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            cursor: crosshair;
+        }
+        .unit, .monster {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            border-radius: 50%;
+            transition: transform 0.1s linear;
+        }
+        .unit {
+            background-color: #27ae60;
+            border: 2px solid #2ecc71;
+        }
+        .monster {
+            background-color: #e74c3c;
+            border: 2px solid #c0392b;
+        }
+        .health-bar-container {
+            position: absolute;
+            bottom: 5px;
+            width: 80%;
+            height: 5px;
+            background-color: #7f8c8d;
+            border-radius: 5px;
+            overflow: hidden;
+            z-index: 10;
+        }
+        .health-bar {
+            height: 100%;
+            background-color: #2ecc71;
+            transition: width 0.1s ease-out;
+        }
+        #ui-container {
+            width: 800px;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            background-color: #34495e;
+            border-radius: 10px;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+            flex-wrap: wrap;
+        }
+        .info-box {
+            text-align: center;
+            font-size: 1.2em;
+            min-width: 100px;
+            margin: 5px;
+        }
+        #unit-buttons-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            width: 100%;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .summon-button {
+            width: 80px;
+            height: 80px;
+            background-color: #2980b9;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s;
+            box-shadow: 0 5px 0 #20638e;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            padding: 5px;
+        }
+        .summon-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 #20638e;
+        }
+        .summon-button:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #20638e;
+        }
+        .summon-button .cost {
+            font-size: 0.8em;
+            color: #f1c40f;
+        }
     </style>
-    <script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>
-    <script src="./index.js" type="module"></script>
-  </head>
-  <body>
-    <canvas id="game"></canvas>
-  </body>
+</head>
+<body>
+    <h1>동물 수비대</h1>
+    <div id="game-container"></div>
+    <div id="ui-container">
+        <div class="info-box">골드: <span id="gold">0</span></div>
+        <div class="info-box">기지 체력: <span id="base-health">100</span></div>
+        <div class="info-box">점수: <span id="score">0</span></div>
+        <div id="unit-buttons-container">
+            <!-- 유닛 소환 버튼들이 여기에 동적으로 추가됩니다 -->
+        </div>
+    </div>
+    <!-- 분리된 자바스크립트 파일 링크 -->
+    <script src="game.js"></script>
+</body>
 </html>

@@ -1,30 +1,43 @@
 {
-  "name": "realtimegame",
-  "version": "1.0.0",
-  "main": "src/app.ts",
-  "scripts": {
-    "dev": "nodemon src/app.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ggutis/realTimeGame.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/ggutis/realTimeGame/issues"
-  },
-  "homepage": "https://github.com/ggutis/realTimeGame#readme",
-  "description": "",
-  "type": "module",
-  "dependencies": {
-    "express": "^5.1.0",
-    "socket.io": "^4.8.1",
-    "uuid": "^11.1.0"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.10",
-    "prettier": "^3.6.2"
-  }
+	"name": "realtimegame",
+	"version": "1.0.0",
+	"main": "src/app.ts",
+	"scripts": {
+		"start": "node dist/app.js",
+		"build": "npm run copy-assets && tsc",
+		"dev": "npm run build && npm run start",
+		"copy-assets": "copyfiles --up 1 \"assets/**/*\" dist"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ggutis/realTimeGame.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/ggutis/realTimeGame/issues"
+	},
+	"homepage": "https://github.com/ggutis/realTimeGame#readme",
+	"description": "",
+	"type": "module",
+	"dependencies": {
+		"@prisma/client": "^6.14.0",
+		"@types/express": "^5.0.3",
+		"@types/node": "^24.3.0",
+		"@types/uuid": "^10.0.0",
+		"copyfiles": "^2.4.1",
+		"dotenv": "^17.2.1",
+		"express": "^5.1.0",
+		"prisma": "^6.14.0",
+		"socket.io": "^4.8.1",
+		"ts-node": "^10.9.2",
+		"tsx": "^4.20.5",
+		"typescript": "^5.9.2",
+		"uuid": "^11.1.0"
+	},
+	"devDependencies": {
+		"nodemon": "^3.1.10",
+		"prettier": "^3.6.2"
+	}
 }
