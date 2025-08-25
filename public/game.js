@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const goldEl = document.getElementById('gold');
     const baseHealthEl = document.getElementById('base-health');
     const scoreEl = document.getElementById('score');
+    const stageEl = document.getElementById('stage'); // 스테이지 표시 엘리먼트
     const unitButtonsContainer = document.getElementById('unit-buttons-container');
 
     // Modal elements
@@ -25,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
         animalUnlocks: [],
     };
     
-    const targetPositions = {};
+    const entityStates = {}; // 애니메이션과 위치 보간을 위한 상태 저장
     
     let lastTime = 0;
     function renderLoop(currentTime) {
@@ -34,45 +35,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const deltaTime = (currentTime - lastTime) / 1000;
         lastTime = currentTime;
-        
-        for (const id in currentEntities.monsters) {
-            const monsterElement = currentEntities.monsters[id];
-            const targetPos = targetPositions[id];
 
-            if (monsterElement && targetPos) {
-                const speed = 150; 
-                const currentX = parseFloat(monsterElement.style.left) || targetPos.x;
-                const currentY = parseFloat(monsterElement.style.top) || targetPos.y;
+        const allEntities = { ...currentEntities.animals, ...currentEntities.monsters };
 
-                const dx = targetPos.x - currentX;
-                const dy = targetPos.y - currentY;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                
-                if (distance > 1) {
-                    const moveAmount = Math.min(distance, speed * deltaTime);
-                    monsterElement.style.left = `${currentX + (dx / distance) * moveAmount}px`;
-                    monsterElement.style.top = `${currentY + (dy / distance) * moveAmount}px`;
-                }
-            }
-        }
+        for (const id in allEntities) {
+            const entityElement = allEntities[id];
+            const state = entityStates[id];
 
-        for (const id in currentEntities.animals) {
-            const animalElement = currentEntities.animals[id];
-            const targetPos = targetPositions[id];
+            if (entityElement && state && state.targetPos) {
+                // 위치 보간
+                const currentX = parseFloat(entityElement.style.left) || state.targetPos.x;
+                const currentY = parseFloat(entityElement.style.top) || state.targetPos.y;
+                const newX = currentX + (state.targetPos.x - currentX) * 0.1;
+                const newY = currentY + (state.targetPos.y - currentY) * 0.1;
+                entityElement.style.left = `${newX}px`;
+                entityElement.style.top = `${newY}px`;
 
-            if (animalElement && targetPos) {
-                const speed = 150;
-                const currentX = parseFloat(animalElement.style.left) || targetPos.x;
-                const currentY = parseFloat(animalElement.style.top) || targetPos.y;
-
-                const dx = targetPos.x - currentX;
-                const dy = targetPos.y - currentY;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                
-                if (distance > 1) {
-                    const moveAmount = Math.min(distance, speed * deltaTime);
-                    animalElement.style.left = `${currentX + (dx / distance) * moveAmount}px`;
-                    animalElement.style.top = `${currentY + (dy / distance) * moveAmount}px`;
+                // 애니메이션
+                const now = Date.now();
+                if (now > state.lastFrameTime + 150) { // 150ms 마다 프레임 변경
+                    state.currentFrame = (state.currentFrame + 1) % 4; // 4프레임 애니메이션으로 가정
+                    const frameNumber = state.currentFrame.toString().padStart(2, '0');
+                    const entityImg = entityElement.querySelector('img');
+                    if (entityImg) {
+                        const type = entityElement.classList.contains('unit') ? 'animals' : 'monster';
+                        // entityId는 animalId (e.g. 'snake') 또는 monsterId (e.g. 'orc')
+                        const entityId = state.entityId;
+                        entityImg.src = `./images/${type}/${entityId}${frameNumber}.png`;
+                    }
+                    state.lastFrameTime = now;
                 }
             }
         }
@@ -80,8 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
         requestAnimationFrame(renderLoop);
     }
     
-    requestAnimationFrame(renderLoop);
-
     socket.on('connect', () => {
         console.log('서버에 연결되었습니다.');
         socket.emit('game:start', { userId: 'guest-user' });
@@ -89,19 +78,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     socket.on('game:start_success', (payload) => {
         console.log('게임이 시작되었습니다.', payload);
-        if (payload.gameAssets) {
-            gameAssets = payload.gameAssets;
-        }
+        gameAssets = payload.gameAssets;
         goldEl.textContent = payload.userGold;
+        stageEl.textContent = payload.currentStageId || 1;
         renderSummonButtons(payload.unlockedAnimals);
+        // 게임 루프 시작
+        requestAnimationFrame(renderLoop);
     });
 
     socket.on('game:state_update', (gameState) => {
         goldEl.textContent = gameState.gold;
         baseHealthEl.textContent = gameState.baseHealth;
         scoreEl.textContent = gameState.score;
-        updateTargetPositions(gameState.animals, 'unit', currentEntities.animals);
-        updateTargetPositions(gameState.monsters, 'monster', currentEntities.monsters);
+        updateEntities(gameState.animals, 'unit', currentEntities.animals);
+        updateEntities(gameState.monsters, 'monster', currentEntities.monsters);
+
+        if (gameState.damageEvents) {
+            gameState.damageEvents.forEach(event => {
+                showDamageNumber(event.targetId, event.damage);
+            });
+        }
     });
 
     socket.on('game:end', (payload) => {
@@ -118,6 +114,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    socket.on('game:stage_started', (payload) => {
+        stageEl.textContent = payload.currentStageId;
+        goldEl.textContent = payload.userGold;
+    });
+
     socket.on('game:error', (payload) => {
         console.error('게임 오류:', payload.message);
         showModal('게임 오류', payload.message, '확인', hideModal);
@@ -130,117 +131,131 @@ document.addEventListener('DOMContentLoaded', () => {
             if (animalData) {
                 const button = document.createElement('button');
                 button.className = 'summon-button';
-                button.dataset.animalId = animalId;
-                button.innerHTML = `
-                    <img src="/images/${animalData.image}" alt="${animalData.name}" style="width: 40px; height: 40px;">
-                    <span>${animalData.name}</span>
-                    <span class="cost">${animalData.cost}💰</span>
-                `;
-                button.addEventListener('click', () => {
+                button.onclick = () => {
                     isSummoning = true;
                     selectedAnimalId = animalId;
-                    console.log(`'${animalData.name}' 소환 모드 활성화`);
-                });
+                    gameContainer.style.cursor = 'crosshair';
+                };
+                
+                const img = document.createElement('img');
+                // 버튼 이미지는 첫번째 프레임(00) 사용
+                img.src = `./images/animals/${animalId}00.png`; 
+                img.alt = animalData.name;
+                img.style.width = '40px';
+                img.style.height = '40px';
+                button.appendChild(img);
+
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = animalData.name;
+                button.appendChild(nameSpan);
+
+                const costSpan = document.createElement('span');
+                costSpan.className = 'cost';
+                costSpan.textContent = `${animalData.cost}💰`;
+                button.appendChild(costSpan);
+                
                 unitButtonsContainer.appendChild(button);
             }
         });
     };
-    
-    const updateTargetPositions = (entities, className, currentEntitiesMap) => {
+
+    const updateEntities = (entities, type, currentEntitiesMap) => {
         const updatedIds = new Set();
-        
-        entities.forEach((entity) => {
-            const id = entity.id;
-            updatedIds.add(id);
-            targetPositions[id] = entity.position;
+        entities.forEach(entity => {
+            updatedIds.add(entity.id);
+            const entityId = type === 'unit' ? entity.animalId : entity.monsterId;
 
-            let el = currentEntitiesMap[id];
-            
+            let el = currentEntitiesMap[entity.id];
             if (!el) {
-                el = document.createElement('div');
-                el.id = id;
-                el.className = className;
-                el.innerHTML = getEntityIcon(className, entity);
-                gameContainer.appendChild(el);
-                
-                el.style.left = `${entity.position.x}px`;
-                el.style.top = `${entity.position.y}px`;
+                el = createEntityElement(type, entity.id, entityId);
+                currentEntitiesMap[entity.id] = el;
+            }
 
-                const healthBarContainer = document.createElement('div');
-                healthBarContainer.className = 'health-bar-container';
-                const healthBar = document.createElement('div');
-                healthBar.className = 'health-bar';
-                healthBarContainer.appendChild(healthBar);
-                el.appendChild(healthBarContainer);
-                
-                currentEntitiesMap[id] = el;
+            if (!entityStates[entity.id]) {
+                entityStates[entity.id] = { targetPos: {}, currentFrame: 0, lastFrameTime: 0, entityId: entityId };
             }
-            
-            const healthBar = el.querySelector('.health-bar');
-            if (healthBar) {
-                const maxHealth = getInitialHealth(entity);
-                const healthPercentage = (entity.health / maxHealth) * 100;
-                healthBar.style.width = `${Math.max(0, healthPercentage)}%`;
-            }
+            entityStates[entity.id].targetPos = entity.position;
+
+            const maxHealth = type === 'unit' ? gameAssets.animals[entityId].health : gameAssets.monsters[entityId].health;
+            updateHealthBar(el, entity.health, maxHealth);
         });
-        
+
         for (const id in currentEntitiesMap) {
             if (!updatedIds.has(id)) {
-                if (currentEntitiesMap[id]) {
-                    gameContainer.removeChild(currentEntitiesMap[id]);
-                }
+                currentEntitiesMap[id].remove();
                 delete currentEntitiesMap[id];
-                delete targetPositions[id];
+                delete entityStates[id];
             }
         }
     };
 
-    const getEntityIcon = (className, entity) => {
-        let data;
-        if (className === 'unit') {
-            data = gameAssets.animals[entity.animalId];
-        } else {
-            data = gameAssets.monsters[entity.monsterId];
-        }
-        if (data && data.image) {
-            return `<img src="/images/${data.image}" alt="${data.name}">`;
-        }
-        return '❓'; // Fallback icon
+    const createEntityElement = (type, id, entityId) => {
+        const element = document.createElement('div');
+        element.className = type; // 'unit' or 'monster'
+        element.id = id;
+
+        const img = document.createElement('img');
+        const folder = type === 'unit' ? 'animals' : 'monster';
+        img.src = `./images/${folder}/${entityId}00.png`; // 초기 이미지
+        element.appendChild(img);
+
+        const healthBarContainer = document.createElement('div');
+        healthBarContainer.className = 'health-bar-container';
+        const healthBar = document.createElement('div');
+        healthBar.className = 'health-bar';
+        healthBarContainer.appendChild(healthBar);
+        element.appendChild(healthBarContainer);
+        
+        gameContainer.appendChild(element);
+        return element;
     };
 
-    const getInitialHealth = (entity) => {
-        if (entity.animalId && gameAssets.animals[entity.animalId]) {
-            return gameAssets.animals[entity.animalId].health;
+    const updateHealthBar = (element, currentHealth, maxHealth) => {
+        const healthBar = element.querySelector('.health-bar');
+        if (healthBar) {
+            const percentage = Math.max(0, (currentHealth / maxHealth) * 100);
+            healthBar.style.width = `${percentage}%`;
         }
-        if (entity.monsterId && gameAssets.monsters[entity.monsterId]) {
-            return gameAssets.monsters[entity.monsterId].health;
-        }
-        return 100;
     };
 
     gameContainer.addEventListener('click', (event) => {
-        if (!isSummoning || !selectedAnimalId) {
-            return;
-        }
+        if (!isSummoning || !selectedAnimalId) return;
 
         const rect = gameContainer.getBoundingClientRect();
-        const position = {
-            x: event.clientX - rect.left,
-            y: event.clientY - rect.top,
-        };
+        const position = { x: event.clientX - rect.left, y: event.clientY - rect.top };
 
         socket.emit('game:summon', { animalId: selectedAnimalId, position });
 
         isSummoning = false;
         selectedAnimalId = null;
+        gameContainer.style.cursor = 'default';
     });
 
-    // Modal helper functions
+    function showDamageNumber(targetId, damage) {
+        const targetElement = document.getElementById(targetId);
+        if (!targetElement) return;
+
+        const damageElement = document.createElement('div');
+        damageElement.className = 'damage-number';
+        damageElement.textContent = damage;
+
+        const targetRect = targetElement.getBoundingClientRect();
+        const containerRect = gameContainer.getBoundingClientRect();
+        damageElement.style.left = `${targetRect.left - containerRect.left + (targetRect.width / 2) - 10}px`;
+        damageElement.style.top = `${targetRect.top - containerRect.top - 20}px`;
+
+        gameContainer.appendChild(damageElement);
+
+        damageElement.addEventListener('animationend', () => {
+            damageElement.remove();
+        });
+    }
+
     function showModal(title, score, buttonText, callback) {
         modalTitle.textContent = title;
         modalScore.textContent = score;
         modalBtn.textContent = buttonText;
-        modalBtn.onclick = callback; // Assign new callback
+        modalBtn.onclick = callback;
         modal.style.display = 'flex';
     }
 

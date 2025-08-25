@@ -3,24 +3,28 @@
 	"version": "1.0.0",
 	"data": [
 		{
-			"stageId": 1,
+			"stageId": 0,
 			"unlockedAnimals": ["snake", "rat"]
 		},
 		{
-			"stageId": 2,
+			"stageId": 1,
 			"unlockedAnimals": ["pigeon", "pig"]
 		},
 		{
-			"stageId": 3,
+			"stageId": 2,
 			"unlockedAnimals": ["sheep", "wolf"]
 		},
 		{
-			"stageId": 4,
+			"stageId": 3,
 			"unlockedAnimals": ["cobra", "whiteWolf"]
 		},
 		{
+			"stageId": 4,
+			"unlockedAnimals": ["brownBear"]
+		},
+		{
 			"stageId": 5,
-			"unlockedAnimals": ["brownBear", "grizzlyBear"]
+			"unlockedAnimals": ["grizzlyBear"]
 		}
 	]
 }

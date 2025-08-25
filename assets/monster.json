@@ -7,45 +7,40 @@
 			"name": "엘프",
 			"health": 40,
 			"damage": 8,
-			"moveSpeed": 500,
-			"goldDrop": 15,
-			"image": "cactus_1.png"
+			"moveSpeed": 100,
+			"goldDrop": 15
 		},
 		{
 			"id": "orc",
 			"name": "오크",
 			"health": 100,
 			"damage": 20,
-			"moveSpeed": 0.8,
-			"goldDrop": 30,
-			"image": "cactus_2.png"
+			"moveSpeed": 40,
+			"goldDrop": 30
 		},
 		{
 			"id": "human",
 			"name": "인간",
 			"health": 60,
 			"damage": 10,
-			"moveSpeed": 1.0,
-			"goldDrop": 20,
-			"image": "cactus_3.png"
+			"moveSpeed": 50,
+			"goldDrop": 20
 		},
 		{
 			"id": "troll",
 			"name": "트롤",
 			"health": 200,
 			"damage": 40,
-			"moveSpeed": 0.5,
-			"goldDrop": 50,
-			"image": "cactus_1.png"
+			"moveSpeed": 25,
+			"goldDrop": 50
 		},
 		{
 			"id": "skeleton",
 			"name": "스켈레톤",
 			"health": 30,
 			"damage": 5,
-			"moveSpeed": 1.5,
-			"goldDrop": 10,
-			"image": "cactus_2.png"
+			"moveSpeed": 75,
+			"goldDrop": 10
 		}
 	]
 }

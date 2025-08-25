@@ -9,7 +9,7 @@ import {
 } from '../types/data.d';
 import { GameStartPayload, SummonUnitPayload } from '../types/payloads.d';
 import { isMeet } from '../handlers/helper.js';
-import { getStageData, completeStage } from './stage.handler.js';
+import { getStageData, completeStage, moveStageHandler } from './stage.handler.js';
 
 // 모든 활성 게임 세션을 저장합니다.
 export const activeSessions: Record<string, GameSession> = {};
@@ -146,7 +146,9 @@ const gameLoop = (io: Server): void => {
 				gold: session.gold,
 				baseHealth: session.baseHealth,
 				score: session.score,
+				damageEvents: session.damageEvents,
 			});
+			session.damageEvents = []; // 이벤트 전송 후 초기화
 		} catch (error) {
 			console.error(`게임 루프 중 오류 발생: ${error}`);
 		}
@@ -227,8 +229,8 @@ export const startGame = (
 	socket.emit('game:start_success', {
 		unlockedAnimals: newSession.unlockedAnimals,
 		userGold: newSession.gold,
-		animals: assets.animals,
-		monsters: assets.monsters
+		gameAssets: getAssets(),
+		currentStageId: newSession.currentStageId
 	});
 
 	if (!gameLoopInterval) {
@@ -292,7 +294,7 @@ export const summonUnit = async (socket: Socket, payload: SummonUnitPayload): Pr
 		isMoving: true,
 		targetId: null,
 		position: {
-			x: payload.position.x,
+			x: 100, // 고정된 x 위치
 			y: 500,
 		},
 	};

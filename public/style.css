@@ -171,3 +171,26 @@ h1 {
 #modal-action-btn:hover {
     background-color: #3498db;
 }
+
+/* Damage Number Styles */
+.damage-number {
+    position: absolute;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #e74c3c; /* Red color for damage */
+    text-shadow: 1px 1px 2px black;
+    pointer-events: none; /* So they don't interfere with clicks */
+    animation: float-up 1s ease-out forwards;
+    z-index: 20;
+}
+
+@keyframes float-up {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+}

@@ -9,10 +9,9 @@
 			"health": 30,
 			"damage": 5,
 			"attackSpeed": 1200,
-			"moveSpeed": 1,
+			"moveSpeed": 50,
 			"range": 100,
-			"type": "ranged",
-			"image": "standing_still.png"
+			"type": "ranged"
 		},
 		{
 			"id": "cobra",
@@ -21,10 +20,9 @@
 			"health": 60,
 			"damage": 15,
 			"attackSpeed": 1000,
-			"moveSpeed": 1,
+			"moveSpeed": 50,
 			"range": 150,
-			"type": "ranged",
-			"image": "standing_still_eye_closed.png"
+			"type": "ranged"
 		},
 		{
 			"id": "rat",
@@ -33,10 +31,9 @@
 			"health": 20,
 			"damage": 3,
 			"attackSpeed": 800,
-			"moveSpeed": 1,
+			"moveSpeed": 50,
 			"range": 20,
-			"type": "melee",
-			"image": "dino_run1.png"
+			"type": "melee"
 		},
 		{
 			"id": "whiteRat",
@@ -45,10 +42,9 @@
 			"health": 40,
 			"damage": 8,
 			"attackSpeed": 700,
-			"moveSpeed": 1,
+			"moveSpeed": 50,
 			"range": 20,
-			"type": "melee",
-			"image": "dino_run2.png"
+			"type": "melee"
 		},
 		{
 			"id": "pigeon",
@@ -57,10 +53,9 @@
 			"health": 25,
 			"damage": 6,
 			"attackSpeed": 1100,
-			"moveSpeed": 1,
+			"moveSpeed": 50,
 			"range": 120,
-			"type": "ranged",
-			"image": "happy_rtan.gif"
+			"type": "ranged"
 		},
 		{
 			"id": "seagull",
@@ -69,10 +64,9 @@
 			"health": 50,
 			"damage": 12,
 			"attackSpeed": 900,
-			"moveSpeed": 1,
+			"moveSpeed": 50,
 			"range": 150,
-			"type": "ranged",
-			"image": "happy_rtan.gif"
+			"type": "ranged"
 		},
 		{
 			"id": "wolf",
@@ -81,10 +75,9 @@
 			"health": 80,
 			"damage": 20,
 			"attackSpeed": 1300,
-			"moveSpeed": 1,
+			"moveSpeed": 50,
 			"range": 30,
-			"type": "melee",
-			"image": "dino_run1.png"
+			"type": "melee"
 		},
 		{
 			"id": "whiteWolf",
@@ -93,10 +86,9 @@
 			"health": 120,
 			"damage": 30,
 			"attackSpeed": 1200,
-			"moveSpeed": 1,
+			"moveSpeed": 50,
 			"range": 30,
-			"type": "melee",
-			"image": "dino_run2.png"
+			"type": "melee"
 		},
 		{
 			"id": "blackWolf",
@@ -105,10 +97,9 @@
 			"health": 150,
 			"damage": 40,
 			"attackSpeed": 1100,
-			"moveSpeed": 1,
+			"moveSpeed": 50,
 			"range": 30,
-			"type": "melee",
-			"image": "dino_run1.png"
+			"type": "melee"
 		},
 		{
 			"id": "pig",
@@ -117,10 +108,9 @@
 			"health": 100,
 			"damage": 10,
 			"attackSpeed": 1600,
-			"moveSpeed": 1,
+			"moveSpeed": 50,
 			"range": 25,
-			"type": "melee",
-			"image": "standing_still.png"
+			"type": "melee"
 		},
 		{
 			"id": "sheep",
@@ -129,10 +119,9 @@
 			"health": 110,
 			"damage": 8,
 			"attackSpeed": 1700,
-			"moveSpeed": 1,
+			"moveSpeed": 50,
 			"range": 25,
-			"type": "melee",
-			"image": "standing_still.png"
+			"type": "melee"
 		},
 		{
 			"id": "brownBear",
@@ -141,10 +130,9 @@
 			"health": 300,
 			"damage": 50,
 			"attackSpeed": 1500,
-			"moveSpeed": 1,
+			"moveSpeed": 50,
 			"range": 50,
-			"type": "melee",
-			"image": "dino_run1.png"
+			"type": "melee"
 		},
 		{
 			"id": "grizzlyBear",
@@ -153,10 +141,9 @@
 			"health": 500,
 			"damage": 80,
 			"attackSpeed": 1400,
-			"moveSpeed": 1,
+			"moveSpeed": 50,
 			"range": 50,
-			"type": "melee",
-			"image": "dino_run2.png"
+			"type": "melee"
 		}
 	]
 }

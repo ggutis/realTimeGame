@@ -17,6 +17,7 @@ export class GameSession {
     public isStageCompleted: boolean;
     public spawnTimer: NodeJS.Timeout | null;
     public monstersSpawnedInWave: number; // 현재 웨이브에서 소환된 몬스터 수
+    public damageEvents: { targetId: string; damage: number }[];
 
     constructor(userId: string) {
         this.userId = userId;
@@ -35,5 +36,6 @@ export class GameSession {
         this.isStageCompleted = false;
         this.spawnTimer = null;
         this.monstersSpawnedInWave = 0;
+        this.damageEvents = [];
     }
 }
