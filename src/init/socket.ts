@@ -1,6 +1,7 @@
 import { Server, Socket } from 'socket.io';
-import { startGame, summonUnit, endGame, activeSessions, nextStageHandler } from '../handlers/game.handler.js';
-import { moveStageHandler } from '../handlers/stage.handler.js';
+import { startGame, endGame, activeSessions } from '../handlers/game.handler.js';
+import { summonUnit } from '../handlers/unit.handler.js';
+import { nextStageHandler } from '../handlers/stage.handler.js';
 
 export function handleSocketEvents(io: Server) {
     io.on('connection', (socket: Socket) => {

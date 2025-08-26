@@ -5,8 +5,9 @@ import { GameSession } from '../models/game.session.js';
 import { GAME } from '../constants.js';
 import { ActiveAnimal, ActiveMonster } from '../types/data.d';
 import { GameStartPayload, SummonUnitPayload } from '../types/payloads.d';
-import { isMeet, calcDistance ,findClosestTarget, battle} from '../handlers/helper.js';
+import { isMeet, calcDistance, findClosestTarget, battle } from '../handlers/helper.js';
 import { getStageData, completeStage } from './stage.handler.js';
+import { spawnMonstersForSession } from './monster.handler.js';
 
 // 모든 활성 게임 세션을 저장합니다.
 export const activeSessions: Record<string, GameSession> = {};
@@ -32,7 +33,7 @@ const gameLoop = (io: Server): void => {
 			spawnMonstersForSession(session);
 
 			const UNIT_BUFFER_DISTANCE = 10;
-            // 몬스터 간의 최소 간격을 정의합니다.
+			// 몬스터 간의 최소 간격을 정의합니다.
 			const MONSTER_BUFFER_DISTANCE = 10;
 
 			// 2. 유닛과 몬스터 전투 로직
@@ -78,7 +79,7 @@ const gameLoop = (io: Server): void => {
 						// 공격 쿨타임이 0 이하가 되면 공격
 						if (animal.attackSpeed <= 0) {
 							// 몬스터 공격
-                            // battle(animal, nearestMonster)
+							// battle(animal, nearestMonster)
 							nearestMonster.health -= animalData.damage;
 
 							animal.attackSpeed = animalData.attackSpeed; // 공격 쿨타임 재설정
@@ -111,14 +112,17 @@ const gameLoop = (io: Server): void => {
 				const monsterData = getAssets().monsters[monster.monsterId];
 				if (!monsterData) continue;
 
-                const closestTarget = findClosestTarget(monster.position, Object.values(session.activeAnimals));
-                if (closestTarget) {
+				const closestTarget = findClosestTarget(
+					monster.position,
+					Object.values(session.activeAnimals),
+				);
+				if (closestTarget) {
 					const distance = calcDistance(monster.position, closestTarget.position);
 					if (distance <= monsterData.range) {
 						// 몬스터가 가장 가까운 동물 유닛을 공격
 						closestTarget.health -= monsterData.damage;
 					}
-                    } else {
+				} else {
 					// 공격할 유닛이 없는 경우, 기지를 향해 이동
 					monster.position.x -= (monsterData.moveSpeed * GAME.TICK_RATE) / 1000;
 				}
@@ -140,7 +144,7 @@ const gameLoop = (io: Server): void => {
 					delete session.activeMonsters[monster.id];
 					console.log(`몬스터 ${monster.id}가 기지에 도달. 남은 기지 체력: ${session.baseHealth}`);
 				}
-                // 가장 가까운 유닛 찾기
+				// 가장 가까운 유닛 찾기
 				let nearestAnimal: ActiveAnimal | null = null;
 				let minDistanceToAnimal = Infinity;
 				for (const animal of Object.values(session.activeAnimals)) {
@@ -150,7 +154,7 @@ const gameLoop = (io: Server): void => {
 						nearestAnimal = animal;
 					}
 				}
-                // 가장 가까운 아군 몬스터 찾기
+				// 가장 가까운 아군 몬스터 찾기
 				let nearestFriendlyMonster: ActiveMonster | null = null;
 				let minDistanceToFriendly = Infinity;
 				for (const otherMonster of Object.values(session.activeMonsters)) {
@@ -163,34 +167,33 @@ const gameLoop = (io: Server): void => {
 						nearestFriendlyMonster = otherMonster;
 					}
 				}
-                if (nearestAnimal) {
+				if (nearestAnimal) {
 					// 유닛이 몬스터의 공격 범위 내에 있으면 이동 멈춤
 					if (minDistanceToAnimal <= monsterData.range) {
 						// 공격 범위 내에 있으면 공격
 						// ...
 					} else if (nearestFriendlyMonster && minDistanceToFriendly < MONSTER_BUFFER_DISTANCE) {
-                        // 앞에 다른 몬스터가 있고 너무 가까우면 이동 멈춤
-                        monster.isMoving = false;
-                    } else {
-                        // 유닛을 향해 이동
-                        const directionX = nearestAnimal.position.x - monster.position.x;
-                        const directionY = nearestAnimal.position.y - monster.position.y;
-                        const angle = Math.atan2(directionY, directionX);
-                        
-                        monster.position.x += monsterData.moveSpeed * Math.cos(angle) * GAME.TICK_RATE / 1000;
-                        monster.position.y += monsterData.moveSpeed * Math.sin(angle) * GAME.TICK_RATE / 1000;
-                    }
+						// 앞에 다른 몬스터가 있고 너무 가까우면 이동 멈춤
+						monster.isMoving = false;
+					} else {
+						// 유닛을 향해 이동
+						const directionX = nearestAnimal.position.x - monster.position.x;
+						const directionY = nearestAnimal.position.y - monster.position.y;
+						const angle = Math.atan2(directionY, directionX);
+
+						monster.position.x += (monsterData.moveSpeed * Math.cos(angle) * GAME.TICK_RATE) / 1000;
+						monster.position.y += (monsterData.moveSpeed * Math.sin(angle) * GAME.TICK_RATE) / 1000;
+					}
 				} else {
 					// 주변에 유닛이 없으면 기지로 이동
-                    if (nearestFriendlyMonster && minDistanceToFriendly < MONSTER_BUFFER_DISTANCE) {
-                        // 앞에 다른 몬스터가 있고 너무 가까우면 이동 멈춤
-                        monster.isMoving = false;
-                    } else {
-                        monster.position.x -= monsterData.moveSpeed * GAME.TICK_RATE / 1000;
-                    }
+					if (nearestFriendlyMonster && minDistanceToFriendly < MONSTER_BUFFER_DISTANCE) {
+						// 앞에 다른 몬스터가 있고 너무 가까우면 이동 멈춤
+						monster.isMoving = false;
+					} else {
+						monster.position.x -= (monsterData.moveSpeed * GAME.TICK_RATE) / 1000;
+					}
 				}
 			}
-			
 
 			// 몬스터 사망 처리 및 골드/점수 획득
 			const deadMonsters = Object.values(session.activeMonsters).filter((m) => m.health <= 0);
@@ -247,98 +250,6 @@ const gameLoop = (io: Server): void => {
 	}
 };
 
-// 몬스터 웨이브 소환 로직
-const spawnMonstersForSession = (session: GameSession): void => {
-	const currentStage = getStageData(session.currentStageId);
-
-	if (!session.isSpawning && session.monsterSpawnQueue.length > 0 && currentStage) {
-		const wave = session.monsterSpawnQueue.shift();
-		if (wave) {
-			session.isSpawning = true;
-			session.currentWaveIndex++; // 웨이브 인덱스 증가
-			session.monstersSpawnedInWave = 0;
-			session.spawnTimer = setInterval(() => {
-				if (session.monstersSpawnedInWave >= wave.count) {
-					if (session.spawnTimer) {
-						clearInterval(session.spawnTimer);
-					}
-					session.isSpawning = false;
-					return;
-				}
-
-				const monsterData = getAssets().monsters[wave.monsterId];
-				if (monsterData) {
-					const monsterId = uuid();
-					const newMonster: ActiveMonster = {
-						id: monsterId,
-						monsterId: monsterData.id,
-						health: monsterData.health,
-						damage: monsterData.damage,
-						moveSpeed: monsterData.moveSpeed,
-                        attackSpeed: monsterData.attackSpeed,
-						goldDrop: monsterData.goldDrop,
-						isAlive: true,
-						isMoving: true,
-						position: {
-							x: 800,
-							y: 500, // 게임 화면에 맞게 Y 위치 조정
-						},
-					};
-					session.activeMonsters[monsterId] = newMonster;
-					session.monstersSpawnedInWave++;
-				}
-			}, wave.delay);
-		}
-	}
-};
-
-// 유닛 소환 로직
-export const summonUnit = async (socket: Socket, payload: SummonUnitPayload): Promise<void> => {
-	const sessionId = Object.keys(activeSessions).find(
-		(key) => activeSessions[key].socketId === socket.id,
-	);
-	if (!sessionId) {
-		socket.emit('game:error', { message: '유효한 게임 세션을 찾을 수 없습니다.' });
-		return;
-	}
-
-	const session = activeSessions[sessionId];
-	const animalData = getAssets().animals[payload.animalId];
-
-	if (!animalData) {
-		socket.emit('game:error', { message: '존재하지 않는 유닛입니다.' });
-		return;
-	}
-
-	if (session.gold < animalData.cost) {
-		socket.emit('game:error', { message: '골드가 부족합니다.' });
-		return;
-	}
-
-	// 골드 차감
-	session.gold -= animalData.cost;
-
-	// 유닛 소환
-	const unitId = uuid();
-	const newUnit: ActiveAnimal = {
-		id: unitId,
-		animalId: animalData.id,
-		health: animalData.health,
-		damage: animalData.damage,
-		attackSpeed: 0,
-		isMoving: true,
-		targetId: null,
-		position: {
-			x: 100, // 고정된 x 위치
-			y: 500,
-		},
-	};
-	session.activeAnimals[unitId] = newUnit;
-
-	console.log(
-		`유닛 ${animalData.name} (ID: ${unitId})가 소환되었습니다. 남은 골드: ${session.gold}`,
-	);
-};
 
 export const startGame = (socket: Socket, io: Server, payload: GameStartPayload): void => {
 	if (gameLoopInterval) {
@@ -350,12 +261,12 @@ export const startGame = (socket: Socket, io: Server, payload: GameStartPayload)
 	newSession.socketId = socket.id;
 	activeSessions[newSession.userId] = newSession;
 
-    newSession.currentStageId = 0;
+	newSession.currentStageId = 0;
 
 	const stage1 = getStageData(0);
 	if (stage1) {
 		newSession.monsterSpawnQueue.push(...stage1.waves);
-        // 스테이지 1의 시작 골드 설정
+		// 스테이지 1의 시작 골드 설정
 		newSession.gold = stage1.startGold;
 	}
 
@@ -393,68 +304,4 @@ export const endGame = (io: Server, session: GameSession): void => {
 			console.log('모든 게임 세션이 종료되어 게임 루프를 중단합니다.');
 		}
 	}
-};
-
-// 다음 스테이지로 이동하는 핸들러
-export const nextStageHandler = (io: Server, socket: Socket, payload: { userId: string }) => {
-	const session = activeSessions[payload.userId];
-	if (!session) {
-		socket.emit('game:error', { message: '세션을 찾을 수 없습니다.' });
-		return;
-	}
-
-	if (!session.isStageCompleted) {
-		socket.emit('game:error', { message: '현재 스테이지가 아직 완료되지 않았습니다.' });
-		return;
-	}
-
-	// 다음 스테이지로 이동
-	session.currentStageId++;
-	const nextStageData = getStageData(session.currentStageId);
-
-	if (!nextStageData) {
-		// 모든 스테이지를 클리어한 경우
-		session.isGameOver = true; // 또는 다른 게임 종료 상태로 처리
-		endGame(io, session);
-		socket.emit('game:end', {
-			message: '모든 스테이지를 클리어했습니다! 축하합니다!',
-			isGameOver: true,
-			score: session.score,
-		});
-		return;
-	}
-
-	const assets = getAssets();
-	const newUnlocks = assets.animalUnlocks.find(
-		(unlock) => unlock.stageId === session.currentStageId,
-	);
-	if (newUnlocks) {
-		// 기존 해금된 동물 목록에 새로운 동물 추가
-		session.unlockedAnimals = Array.from(
-			new Set([...session.unlockedAnimals, ...newUnlocks.unlockedAnimals]),
-		);
-	}
-
-    // 스테이지 시작 골드 초기화
-    session.gold = nextStageData.startGold || 0; 
-
-     // 게임판 초기화: 몬스터와 유닛 제거
-    session.activeMonsters = {};
-    session.activeAnimals = {};
-
-
-	// 세션 상태 초기화
-	session.isStageCompleted = false;
-	session.monsterSpawnQueue = [...nextStageData.waves];
-	session.currentWaveIndex = 0;
-	session.monstersSpawnedInWave = 0;
-
-	// 클라이언트에게 다음 스테이지 시작을 알림 (선택적)
-	socket.emit('game:stage_started', {
-		currentStageId: session.currentStageId,
-		userGold: session.gold,
-        unlockedAnimals: session.unlockedAnimals,
-	});
-
-	console.log(`${payload.userId}가 다음 스테이지(${session.currentStageId})로 이동합니다.`);
 };
