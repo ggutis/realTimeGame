@@ -117,6 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.on('game:stage_started', (payload) => {
         stageEl.textContent = payload.currentStageId;
         goldEl.textContent = payload.userGold;
+        renderSummonButtons(payload.unlockedAnimals);
     });
 
     socket.on('game:error', (payload) => {

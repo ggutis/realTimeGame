@@ -3,10 +3,7 @@ import { Server, Socket } from 'socket.io';
 import { getAssets } from '../init/assets.js';
 import { GameSession } from '../models/game.session.js';
 import { GAME } from '../constants.js';
-import {
-	ActiveAnimal,
-	ActiveMonster,
-} from '../types/data.d';
+import { ActiveAnimal, ActiveMonster } from '../types/data.d';
 import { GameStartPayload, SummonUnitPayload } from '../types/payloads.d';
 import { isMeet } from '../handlers/helper.js';
 import { getStageData, completeStage, moveStageHandler } from './stage.handler.js';
@@ -23,8 +20,11 @@ const gameLoop = (io: Server): void => {
 			const session = activeSessions[sessionId];
 
 			// 게임 종료 또는 스테이지 클리어 상태일 경우 로직 스킵하고 정리
-			if (session.isGameOver || session.isStageCompleted) {
+			if (session.isGameOver) {
 				endGame(io, session);
+				continue;
+			}
+			if (session.isStageCompleted) {
 				continue;
 			}
 
@@ -69,12 +69,19 @@ const gameLoop = (io: Server): void => {
 						// 사정거리 밖에 있으면 다시 이동
 						animal.isMoving = true;
 						// 몬스터를 향해 이동
-						animal.position.x += animalData.moveSpeed * GAME.TICK_RATE / 1000;
+						animal.position.x += (animalData.moveSpeed * GAME.TICK_RATE) / 1000;
 					}
 				} else {
 					// 주변에 몬스터가 없으면 이동
 					animal.isMoving = true;
-					animal.position.x += animalData.moveSpeed * GAME.TICK_RATE / 1000;
+					animal.position.x += (animalData.moveSpeed * GAME.TICK_RATE) / 1000;
+                    
+                    // 유닛이 컨테이너를 벗어나지 않도록 x 좌표 제한
+                    const containerWidth = 900;
+                    if (animal.position.x > containerWidth){
+                        animal.position.x = containerWidth;
+                        animal.isMoving = false;
+                    }
 				}
 			}
 
@@ -85,12 +92,12 @@ const gameLoop = (io: Server): void => {
 
 				// 몬스터의 이동 방향 (기지쪽으로)
 				// 유닛이 막고 있지 않으면 이동
-				const isBlocked = Object.values(session.activeAnimals).some(animal =>
-					isMeet(animal, monster)
+				const isBlocked = Object.values(session.activeAnimals).some((animal) =>
+					isMeet(animal, monster),
 				);
 
 				if (!isBlocked) {
-					monster.position.x -= monsterData.moveSpeed * GAME.TICK_RATE / 1000;
+					monster.position.x -= (monsterData.moveSpeed * GAME.TICK_RATE) / 1000;
 				}
 
 				// 기지에 도달했는지 확인
@@ -103,9 +110,7 @@ const gameLoop = (io: Server): void => {
 			}
 
 			// 몬스터 사망 처리 및 골드/점수 획득
-			const deadMonsters = Object.values(session.activeMonsters).filter(
-				(m) => m.health <= 0,
-			);
+			const deadMonsters = Object.values(session.activeMonsters).filter((m) => m.health <= 0);
 			for (const monster of deadMonsters) {
 				delete session.activeMonsters[monster.id];
 				const monsterData = getAssets().monsters[monster.monsterId];
@@ -116,9 +121,7 @@ const gameLoop = (io: Server): void => {
 			}
 
 			// 유닛 사망 처리
-			const deadAnimals = Object.values(session.activeAnimals).filter(
-				(a) => a.health <= 0,
-			);
+			const deadAnimals = Object.values(session.activeAnimals).filter((a) => a.health <= 0);
 			for (const animal of deadAnimals) {
 				delete session.activeAnimals[animal.id];
 			}
@@ -130,12 +133,18 @@ const gameLoop = (io: Server): void => {
 			}
 
 			// 스테이지 완료 확인
-			const isStageDone = !session.isSpawning &&
+			const isStageDone =
+				!session.isSpawning &&
 				session.monsterSpawnQueue.length === 0 &&
 				Object.keys(session.activeMonsters).length === 0;
 
-			if (isStageDone && session.currentWaveIndex > 0) {
+			if (isStageDone && session.currentWaveIndex > 0 && !session.isStageCompleted) {
 				completeStage(session);
+				io.to(session.socketId).emit('game:end', {
+					score: session.score,
+					isGameOver: false,
+					isStageCompleted: true,
+				});
 				continue;
 			}
 
@@ -155,14 +164,11 @@ const gameLoop = (io: Server): void => {
 	}
 };
 
+// 몬스터 웨이브 소환 로직
 const spawnMonstersForSession = (session: GameSession): void => {
 	const currentStage = getStageData(session.currentStageId);
 
-	if (
-		!session.isSpawning &&
-		session.monsterSpawnQueue.length > 0 &&
-		currentStage
-	) {
+	if (!session.isSpawning && session.monsterSpawnQueue.length > 0 && currentStage) {
 		const wave = session.monsterSpawnQueue.shift();
 		if (wave) {
 			session.isSpawning = true;
@@ -198,61 +204,6 @@ const spawnMonstersForSession = (session: GameSession): void => {
 					session.monstersSpawnedInWave++;
 				}
 			}, wave.delay);
-		}
-	}
-};
-
-export const startGame = (
-	socket: Socket,
-	io: Server,
-	payload: GameStartPayload,
-): void => {
-	if (gameLoopInterval) {
-		clearInterval(gameLoopInterval);
-		gameLoopInterval = null;
-	}
-
-	const newSession = new GameSession(payload.userId || uuid());
-	newSession.socketId = socket.id;
-	activeSessions[newSession.userId] = newSession;
-
-	const stage1 = getStageData(1);
-	if (stage1) {
-		newSession.monsterSpawnQueue.push(...stage1.waves);
-	}
-
-	const assets = getAssets();
-	const unlockedAnimals =
-		assets.animalUnlocks.find((unlock) => unlock.stageId === 0)?.unlockedAnimals || [];
-	newSession.unlockedAnimals = unlockedAnimals;
-	
-	socket.emit('game:start_success', {
-		unlockedAnimals: newSession.unlockedAnimals,
-		userGold: newSession.gold,
-		gameAssets: getAssets(),
-		currentStageId: newSession.currentStageId
-	});
-
-	if (!gameLoopInterval) {
-		gameLoopInterval = setInterval(() => gameLoop(io), GAME.TICK_RATE);
-	}
-};
-
-export const endGame = (io: Server, session: GameSession): void => {
-	io.to(session.socketId).emit('game:end', {
-		score: session.score,
-		isGameOver: session.isGameOver,
-		isStageCompleted: session.isStageCompleted,
-	});
-
-	delete activeSessions[session.userId];
-	console.log(`게임 세션 종료: ${session.userId}`);
-
-	if (Object.keys(activeSessions).length === 0) {
-		if (gameLoopInterval) {
-			clearInterval(gameLoopInterval);
-			gameLoopInterval = null;
-			console.log('모든 게임 세션이 종료되어 게임 루프를 중단합니다.');
 		}
 	}
 };
@@ -305,42 +256,108 @@ export const summonUnit = async (socket: Socket, payload: SummonUnitPayload): Pr
 	);
 };
 
+export const startGame = (socket: Socket, io: Server, payload: GameStartPayload): void => {
+	if (gameLoopInterval) {
+		clearInterval(gameLoopInterval);
+		gameLoopInterval = null;
+	}
+
+	const newSession = new GameSession(payload.userId || uuid());
+	newSession.socketId = socket.id;
+	activeSessions[newSession.userId] = newSession;
+
+	const stage1 = getStageData(1);
+	if (stage1) {
+		newSession.monsterSpawnQueue.push(...stage1.waves);
+	}
+
+	const assets = getAssets();
+	const unlockedAnimals =
+		assets.animalUnlocks.find((unlock) => unlock.stageId === 0)?.unlockedAnimals || [];
+	newSession.unlockedAnimals = unlockedAnimals;
+
+	socket.emit('game:start_success', {
+		unlockedAnimals: newSession.unlockedAnimals,
+		userGold: newSession.gold,
+		gameAssets: getAssets(),
+		currentStageId: newSession.currentStageId,
+	});
+
+	if (!gameLoopInterval) {
+		gameLoopInterval = setInterval(() => gameLoop(io), GAME.TICK_RATE);
+	}
+};
+
+export const endGame = (io: Server, session: GameSession): void => {
+	io.to(session.socketId).emit('game:end', {
+		score: session.score,
+		isGameOver: session.isGameOver,
+		isStageCompleted: session.isStageCompleted,
+	});
+
+	delete activeSessions[session.userId];
+	console.log(`게임 세션 종료: ${session.userId}`);
+
+	if (Object.keys(activeSessions).length === 0) {
+		if (gameLoopInterval) {
+			clearInterval(gameLoopInterval);
+			gameLoopInterval = null;
+			console.log('모든 게임 세션이 종료되어 게임 루프를 중단합니다.');
+		}
+	}
+};
+
 // 다음 스테이지로 이동하는 핸들러
 export const nextStageHandler = (io: Server, socket: Socket, payload: { userId: string }) => {
-    const session = activeSessions[payload.userId];
-    if (!session) {
-        socket.emit('game:error', { message: '세션을 찾을 수 없습니다.' });
-        return;
-    }
+	const session = activeSessions[payload.userId];
+	if (!session) {
+		socket.emit('game:error', { message: '세션을 찾을 수 없습니다.' });
+		return;
+	}
 
-    if (!session.isStageCompleted) {
-        socket.emit('game:error', { message: '현재 스테이지가 아직 완료되지 않았습니다.' });
-        return;
-    }
+	if (!session.isStageCompleted) {
+		socket.emit('game:error', { message: '현재 스테이지가 아직 완료되지 않았습니다.' });
+		return;
+	}
 
-    // 다음 스테이지로 이동
-    session.currentStageId++;
-    const nextStageData = getStageData(session.currentStageId);
+	// 다음 스테이지로 이동
+	session.currentStageId++;
+	const nextStageData = getStageData(session.currentStageId);
 
-    if (!nextStageData) {
-        // 모든 스테이지를 클리어한 경우
-        session.isGameOver = true; // 또는 다른 게임 종료 상태로 처리
-        endGame(io, session);
-        socket.emit('game:end', { message: '모든 스테이지를 클리어했습니다! 축하합니다!', isGameOver: true, score: session.score });
-        return;
-    }
+	if (!nextStageData) {
+		// 모든 스테이지를 클리어한 경우
+		session.isGameOver = true; // 또는 다른 게임 종료 상태로 처리
+		endGame(io, session);
+		socket.emit('game:end', {
+			message: '모든 스테이지를 클리어했습니다! 축하합니다!',
+			isGameOver: true,
+			score: session.score,
+		});
+		return;
+	}
 
-    // 세션 상태 초기화
-    session.isStageCompleted = false;
-    session.monsterSpawnQueue = [...nextStageData.waves];
-    session.currentWaveIndex = 0;
-    session.monstersSpawnedInWave = 0;
+	const assets = getAssets();
+	const newUnlocks = assets.animalUnlocks.find(
+		(unlock) => unlock.stageId === session.currentStageId,
+	);
+	if (newUnlocks) {
+		// 기존 해금된 동물 목록에 새로운 동물 추가
+		session.unlockedAnimals = Array.from(
+			new Set([...session.unlockedAnimals, ...newUnlocks.unlockedAnimals]),
+		);
+	}
 
-    // 클라이언트에게 다음 스테이지 시작을 알림 (선택적)
-    socket.emit('game:stage_started', {
-        currentStageId: session.currentStageId,
-        userGold: session.gold,
-    });
+	// 세션 상태 초기화
+	session.isStageCompleted = false;
+	session.monsterSpawnQueue = [...nextStageData.waves];
+	session.currentWaveIndex = 0;
+	session.monstersSpawnedInWave = 0;
 
-    console.log(`${payload.userId}가 다음 스테이지(${session.currentStageId})로 이동합니다.`);
+	// 클라이언트에게 다음 스테이지 시작을 알림 (선택적)
+	socket.emit('game:stage_started', {
+		currentStageId: session.currentStageId,
+		userGold: session.gold,
+	});
+
+	console.log(`${payload.userId}가 다음 스테이지(${session.currentStageId})로 이동합니다.`);
 };

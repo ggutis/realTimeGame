@@ -1,5 +1,5 @@
 import { Server, Socket } from 'socket.io';
-import { startGame, summonUnit, endGame, activeSessions } from '../handlers/game.handler.js';
+import { startGame, summonUnit, endGame, activeSessions, nextStageHandler } from '../handlers/game.handler.js';
 import { moveStageHandler } from '../handlers/stage.handler.js';
 
 export function handleSocketEvents(io: Server) {
@@ -17,7 +17,7 @@ export function handleSocketEvents(io: Server) {
             const session = Object.values(activeSessions).find(s => s.socketId === socket.id);
             if (session) {
                 const nextStageId = payload.nextStageId;
-                moveStageHandler(session, nextStageId);
+                nextStageHandler(io, socket, { userId: session.userId });
             }
         });
 

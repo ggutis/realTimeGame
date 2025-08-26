@@ -24,3 +24,4 @@ export const handlerMapping = (io: Server, socket: Socket) => {
 };
 
 export default handlerMapping;
+
