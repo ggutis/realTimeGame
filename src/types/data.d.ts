@@ -20,6 +20,7 @@ export interface Monster {
     damage: number;
     moveSpeed: number;
     goldDrop: number;
+    range: number;
 }
 
 // 스테이지 웨이브 데이터
@@ -42,6 +43,7 @@ export interface Stage {
     name: string;
     waves: Wave[];
     boss: Boss;
+    startGold: number;
 }
 
 // 스테이지 해금 데이터
@@ -55,7 +57,7 @@ export interface GameAssets {
     animals: Record<string, Animal>;
     monsters: Record<string, Monster>;
     stages: Record<string, Stage>;
-    animalUnlocks: StageUnlock[]; // 변수명 변경: stageUnlocks -> animalUnlocks
+    animalUnlocks: animalUnlocks[]; // 변수명 변경: stageUnlocks -> animalUnlocks
 }
 
 // 게임 내에서 동적으로 생성되는 유닛/몬스터 객체

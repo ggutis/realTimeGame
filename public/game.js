@@ -159,6 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     };
+    
 
     const updateEntities = (entities, type, currentEntitiesMap) => {
         const updatedIds = new Set();

@@ -22,7 +22,7 @@ h1 {
     position: relative;
     width: 800px;
     height: 600px;
-    background-color: #34495e;
+    background-image: 'images\Cartoon_Forest_BG_01.png';
     border: 5px solid #2c3e50;
     border-radius: 15px;
     overflow: hidden;
@@ -58,8 +58,9 @@ h1 {
 
 .health-bar {
     height: 100%;
-    background-color: #2ecc71;
+    background-color: #f04216;
     transition: width 0.1s ease-out;
+    border: 2px solid #000000;
 }
 
 #ui-container {

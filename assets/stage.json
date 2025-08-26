@@ -3,34 +3,39 @@
 	"version": "1.0.0",
 	"data": [
 		{
-			"id": 1,
+			"id": 0,
 			"name": "인간의 첫 공격",
-			"waves": [{ "monsterId": "elf", "count": 3, "delay": 3000 }],
-			"boss": { "monsterId": "troll", "healthMultiplier": 2, "damageMultiplier": 1.5 }
+			"waves": [{ "monsterId": "human", "count": 3, "delay": 3000 }],
+			"boss": { "monsterId": "human", "healthMultiplier": 2, "damageMultiplier": 1.5 },
+			"startGold": 150 
+		},
+		{
+			"id": 1,
+			"name": "오크의 침공",
+			"waves": [{ "monsterId": "orc", "count": 5, "delay": 2500 }],
+			"boss": { "monsterId": "orc", "healthMultiplier": 3, "damageMultiplier": 2 },
+			"startGold": 250 
 		},
 		{
 			"id": 2,
-			"name": "오크의 침공",
-			"waves": [{ "monsterId": "elf", "count": 5, "delay": 2500 }],
-			"boss": { "monsterId": "orc", "healthMultiplier": 3, "damageMultiplier": 2 }
+			"name": "언데드 습격",
+			"waves": [{ "monsterId": "skeleton", "count": 15, "delay": 1000 }],
+			"boss": { "monsterId": "skeleton", "healthMultiplier": 5, "damageMultiplier": 3 },
+			"startGold": 400 
 		},
 		{
 			"id": 3,
-			"name": "언데드 습격",
-			"waves": [{ "monsterId": "skeleton", "count": 15, "delay": 1000 }],
-			"boss": { "monsterId": "skeleton", "healthMultiplier": 5, "damageMultiplier": 3 }
+			"name": "엘프 기사단",
+			"waves": [{ "monsterId": "elf", "count": 8, "delay": 2000 }],
+			"boss": { "monsterId": "elf", "healthMultiplier": 4, "damageMultiplier": 2.5 },
+			"startGold": 500 
 		},
 		{
 			"id": 4,
-			"name": "엘프 기사단",
-			"waves": [{ "monsterId": "elf", "count": 8, "delay": 2000 }],
-			"boss": { "monsterId": "elf", "healthMultiplier": 4, "damageMultiplier": 2.5 }
-		},
-		{
-			"id": 5,
 			"name": "최후의 트롤",
-			"waves": [],
-			"boss": { "monsterId": "troll", "healthMultiplier": 6, "damageMultiplier": 3.5 }
+			"waves": [{ "monsterId": "troll", "count": 20, "delay": 2000 }],
+			"boss": { "monsterId": "troll", "healthMultiplier": 6, "damageMultiplier": 3.5 },
+			"startGold": 600 
 		}
 	]
 }

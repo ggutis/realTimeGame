@@ -15,7 +15,7 @@
 			"name": "오크",
 			"health": 100,
 			"damage": 20,
-			"moveSpeed": 40,
+			"moveSpeed": 50,
 			"goldDrop": 30
 		},
 		{
@@ -23,7 +23,7 @@
 			"name": "인간",
 			"health": 60,
 			"damage": 10,
-			"moveSpeed": 50,
+			"moveSpeed": 80,
 			"goldDrop": 20
 		},
 		{
@@ -31,7 +31,7 @@
 			"name": "트롤",
 			"health": 200,
 			"damage": 40,
-			"moveSpeed": 25,
+			"moveSpeed": 125,
 			"goldDrop": 50
 		},
 		{
@@ -39,7 +39,7 @@
 			"name": "스켈레톤",
 			"health": 30,
 			"damage": 5,
-			"moveSpeed": 75,
+			"moveSpeed": 30,
 			"goldDrop": 10
 		}
 	]

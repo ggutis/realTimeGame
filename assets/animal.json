@@ -10,7 +10,7 @@
 			"damage": 5,
 			"attackSpeed": 1200,
 			"moveSpeed": 50,
-			"range": 100,
+			"range": 200,
 			"type": "ranged"
 		},
 		{
@@ -21,7 +21,7 @@
 			"damage": 15,
 			"attackSpeed": 1000,
 			"moveSpeed": 50,
-			"range": 150,
+			"range": 300,
 			"type": "ranged"
 		},
 		{
@@ -124,8 +124,8 @@
 			"type": "melee"
 		},
 		{
-			"id": "brownBear",
-			"name": "갈색곰",
+			"id": "Bear",
+			"name": "곰",
 			"cost": 500,
 			"health": 300,
 			"damage": 50,
@@ -135,7 +135,7 @@
 			"type": "melee"
 		},
 		{
-			"id": "grizzlyBear",
+			"id": "grizzelyBear",
 			"name": "불곰",
 			"cost": 800,
 			"health": 500,
