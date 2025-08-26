@@ -4,11 +4,11 @@
 	"data": [
 		{
 			"stageId": 0,
-			"unlockedAnimals": ["snake", "rat"]
+			"unlockedAnimals": ["snake", "rat", "pig"]
 		},
 		{
 			"stageId": 1,
-			"unlockedAnimals": ["pigeon", "pig"]
+			"unlockedAnimals": ["pigeon", "seagull"]
 		},
 		{
 			"stageId": 2,
@@ -20,11 +20,11 @@
 		},
 		{
 			"stageId": 4,
-			"unlockedAnimals": ["brownBear"]
+			"unlockedAnimals": ["Bear"]
 		},
 		{
 			"stageId": 5,
-			"unlockedAnimals": ["grizzlyBear"]
+			"unlockedAnimals": ["grizzelyBear"]
 		}
 	]
 }

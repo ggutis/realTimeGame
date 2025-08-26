@@ -5,8 +5,8 @@ import { GameSession } from '../models/game.session.js';
 import { GAME } from '../constants.js';
 import { ActiveAnimal, ActiveMonster } from '../types/data.d';
 import { GameStartPayload, SummonUnitPayload } from '../types/payloads.d';
-import { isMeet, calcDistance } from '../handlers/helper.js';
-import { getStageData, completeStage, moveStageHandler } from './stage.handler.js';
+import { isMeet, calcDistance ,findClosestTarget, battle} from '../handlers/helper.js';
+import { getStageData, completeStage } from './stage.handler.js';
 
 // 모든 활성 게임 세션을 저장합니다.
 export const activeSessions: Record<string, GameSession> = {};
@@ -31,9 +31,9 @@ const gameLoop = (io: Server): void => {
 			// 1. 몬스터 소환 로직
 			spawnMonstersForSession(session);
 
-			const UNIT_BUFFER_DISTANCE = 30;
+			const UNIT_BUFFER_DISTANCE = 10;
             // 몬스터 간의 최소 간격을 정의합니다.
-			const MONSTER_BUFFER_DISTANCE = 30;
+			const MONSTER_BUFFER_DISTANCE = 10;
 
 			// 2. 유닛과 몬스터 전투 로직
 			for (const animal of Object.values(session.activeAnimals)) {
@@ -41,7 +41,7 @@ const gameLoop = (io: Server): void => {
 				if (!animalData) continue;
 
 				// 공격 쿨타임 감소
-				animal.attackCooldown -= GAME.TICK_RATE;
+				animal.attackSpeed -= GAME.TICK_RATE;
 
 				// 가장 가까운 몬스터 찾기
 				let nearestMonster: ActiveMonster | null = null;
@@ -76,10 +76,12 @@ const gameLoop = (io: Server): void => {
 						// 사정거리 안에 들어오면 유닛의 이동을 멈춥니다.
 						animal.isMoving = false;
 						// 공격 쿨타임이 0 이하가 되면 공격
-						if (animal.attackCooldown <= 0) {
+						if (animal.attackSpeed <= 0) {
 							// 몬스터 공격
+                            // battle(animal, nearestMonster)
 							nearestMonster.health -= animalData.damage;
-							animal.attackCooldown = animalData.attackSpeed; // 공격 쿨타임 재설정
+
+							animal.attackSpeed = animalData.attackSpeed; // 공격 쿨타임 재설정
 						}
 					} else if (nearestFriendlyAnimal && minDistanceToFriendly < UNIT_BUFFER_DISTANCE) {
 						// 앞에 다른 유닛이 있고 너무 가까우면 이동 멈춤
@@ -96,7 +98,7 @@ const gameLoop = (io: Server): void => {
 					animal.position.x += (animalData.moveSpeed * GAME.TICK_RATE) / 1000;
 
 					// 유닛이 컨테이너를 벗어나지 않도록 x 좌표 제한
-					const containerWidth = 800;
+					const containerWidth = 700;
 					if (animal.position.x > containerWidth) {
 						animal.position.x = containerWidth;
 						animal.isMoving = false;
@@ -104,10 +106,22 @@ const gameLoop = (io: Server): void => {
 				}
 			}
 
-			// 몬스터 이동 및 기지 공격
+			// 몬스터 이동 및  공격
 			for (const monster of Object.values(session.activeMonsters)) {
 				const monsterData = getAssets().monsters[monster.monsterId];
 				if (!monsterData) continue;
+
+                const closestTarget = findClosestTarget(monster.position, Object.values(session.activeAnimals));
+                if (closestTarget) {
+					const distance = calcDistance(monster.position, closestTarget.position);
+					if (distance <= monsterData.range) {
+						// 몬스터가 가장 가까운 동물 유닛을 공격
+						closestTarget.health -= monsterData.damage;
+					}
+                    } else {
+					// 공격할 유닛이 없는 경우, 기지를 향해 이동
+					monster.position.x -= (monsterData.moveSpeed * GAME.TICK_RATE) / 1000;
+				}
 
 				// 몬스터의 이동 방향 (기지쪽으로)
 				// 유닛이 막고 있지 않으면 이동
@@ -261,6 +275,7 @@ const spawnMonstersForSession = (session: GameSession): void => {
 						health: monsterData.health,
 						damage: monsterData.damage,
 						moveSpeed: monsterData.moveSpeed,
+                        attackSpeed: monsterData.attackSpeed,
 						goldDrop: monsterData.goldDrop,
 						isAlive: true,
 						isMoving: true,
@@ -310,7 +325,7 @@ export const summonUnit = async (socket: Socket, payload: SummonUnitPayload): Pr
 		animalId: animalData.id,
 		health: animalData.health,
 		damage: animalData.damage,
-		attackCooldown: 0,
+		attackSpeed: 0,
 		isMoving: true,
 		targetId: null,
 		position: {
@@ -335,7 +350,9 @@ export const startGame = (socket: Socket, io: Server, payload: GameStartPayload)
 	newSession.socketId = socket.id;
 	activeSessions[newSession.userId] = newSession;
 
-	const stage1 = getStageData(1);
+    newSession.currentStageId = 0;
+
+	const stage1 = getStageData(0);
 	if (stage1) {
 		newSession.monsterSpawnQueue.push(...stage1.waves);
         // 스테이지 1의 시작 골드 설정
