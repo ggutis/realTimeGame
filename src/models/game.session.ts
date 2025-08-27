@@ -1,4 +1,4 @@
-import { Animal, Monster, Wave, ActiveAnimal, ActiveMonster } from '../types/data.d';
+import { Animal, Monster, Wave, ActiveAnimal, ActiveMonster, ActiveBossMonster } from '../types/data.d';
 
 export class GameSession {
     public userId: string;
@@ -18,6 +18,7 @@ export class GameSession {
     public spawnTimer: NodeJS.Timeout | null;
     public monstersSpawnedInWave: number; // 현재 웨이브에서 소환된 몬스터 수
     public damageEvents: { targetId: string; damage: number }[];
+    public bossMonsters: Record<string, ActiveBossMonster>;
 
     constructor(userId: string) {
         this.userId = userId;
@@ -37,5 +38,7 @@ export class GameSession {
         this.spawnTimer = null;
         this.monstersSpawnedInWave = 0;
         this.damageEvents = [];
+        this.bossMonsters = {};
+
     }
 }

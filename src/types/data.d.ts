@@ -24,7 +24,22 @@ export interface Monster {
 	goldDrop: number;
 	range: number;
 	score: number;
+	isBoss: boolean;
 }
+
+export interface BossMonster {
+	id: string;
+	name: string;
+	health: number;
+	damage: number;
+	moveSpeed: number;
+	attackSpeed: number;
+	goldDrop: number;
+	range: number;
+	score: number;
+	isBoss: boolean;
+}
+
 
 // 스테이지 웨이브 데이터
 export interface Wave {
@@ -93,4 +108,20 @@ export interface ActiveMonster {
 	isMoving: boolean;
 	damage: number;
 	score: number;
+	isBoss: boolean;
+}
+
+export interface ActiveBossMonster {
+	id: string;
+	monsterId: string;
+	health: number;
+	position: Position;
+	moveSpeed: number;
+	attackSpeed: number;
+	goldDrop: number;
+	isAlive: boolean;
+	isMoving: boolean;
+	damage: number;
+	score: number;
+	isBoss: boolean;
 }

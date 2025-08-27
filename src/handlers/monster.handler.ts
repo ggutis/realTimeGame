@@ -35,6 +35,7 @@ export const spawnMonstersForSession = (session: GameSession): void => {
 						attackSpeed: monsterData.attackSpeed,
 						goldDrop: monsterData.goldDrop,
 						score: monsterData.score,
+						isBoss: monsterData.isBoss,
 						isAlive: true,
 						isMoving: true,
 						position: {
@@ -49,3 +50,4 @@ export const spawnMonstersForSession = (session: GameSession): void => {
 		}
 	}
 };
+

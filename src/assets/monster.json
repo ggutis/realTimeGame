@@ -10,8 +10,21 @@
 			"moveSpeed": 100,
 			"attackSpeed": 1400,
 			"goldDrop": 15,
-			"range":200,
-			"score":80
+			"range": 200,
+			"score": 80,
+			"isBoss": false
+		},
+		{
+			"id": "highElf",
+			"name": "허아엘프",
+			"health": 40,
+			"damage": 10,
+			"moveSpeed": 100,
+			"attackSpeed": 1400,
+			"goldDrop": 15,
+			"range": 200,
+			"score": 80,
+			"isBoss": true
 		},
 		{
 			"id": "orc",
@@ -19,10 +32,23 @@
 			"health": 100,
 			"damage": 50,
 			"moveSpeed": 50,
-			"attackSpeed": 1400, 
+			"attackSpeed": 1400,
 			"goldDrop": 30,
 			"range": 1,
-			"score":20
+			"score": 20,
+			"isBoss": false
+		},
+		{
+			"id": "bigOrc",
+			"name": "큰 오크",
+			"health": 100,
+			"damage": 50,
+			"moveSpeed": 50,
+			"attackSpeed": 1400,
+			"goldDrop": 30,
+			"range": 1,
+			"score": 20,
+			"isBoss": true
 		},
 		{
 			"id": "human",
@@ -32,8 +58,21 @@
 			"moveSpeed": 80,
 			"attackSpeed": 1400,
 			"goldDrop": 20,
-			"range":1,
-			"score":10
+			"range": 1,
+			"score": 10,
+			"isBoss": false
+		},
+		{
+			"id": "general",
+			"name": "장군",
+			"health": 60,
+			"damage": 10,
+			"moveSpeed": 80,
+			"attackSpeed": 1400,
+			"goldDrop": 20,
+			"range": 1,
+			"score": 10,
+			"isBoss": true
 		},
 		{
 			"id": "troll",
@@ -43,8 +82,21 @@
 			"moveSpeed": 125,
 			"attackSpeed": 1400,
 			"goldDrop": 50,
-			"range":1,
-			"score":100
+			"range": 1,
+			"score": 100,
+			"isBoss": false
+		},
+		{
+			"id": "bloodTroll",
+			"name": "블러드 트롤",
+			"health": 200,
+			"damage": 40,
+			"moveSpeed": 125,
+			"attackSpeed": 1400,
+			"goldDrop": 50,
+			"range": 1,
+			"score": 100,
+			"isBoss": true
 		},
 		{
 			"id": "skeleton",
@@ -54,8 +106,33 @@
 			"moveSpeed": 30,
 			"attackSpeed": 1400,
 			"goldDrop": 10,
-			"range":1,
-			"score":50
+			"range": 1,
+			"score": 50,
+			"isBoss": false
+		},
+		{
+			"id": "deathKnight",
+			"name": "데스나이트",
+			"health": 200,
+			"damage": 40,
+			"moveSpeed": 125,
+			"attackSpeed": 1400,
+			"goldDrop": 50,
+			"range": 1,
+			"score": 100,
+			"isBoss": true
+		},
+		{
+			"id": "theKing",
+			"name": "왕",
+			"health": 200,
+			"damage": 40,
+			"moveSpeed": 125,
+			"attackSpeed": 1400,
+			"goldDrop": 50,
+			"range": 1,
+			"score": 100,
+			"isBoss": true
 		}
 	]
 }

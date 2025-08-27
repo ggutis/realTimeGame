@@ -6,7 +6,7 @@
 			"id": 0,
 			"name": "인간의 첫 공격",
 			"waves": [{ "monsterId": "human", "count": 10, "delay": 500 }],
-			"boss": { "monsterId": "human", "healthMultiplier": 2, "damageMultiplier": 1.5 },
+			"boss": { "monsterId": "general", "healthMultiplier": 2, "damageMultiplier": 1.5 },
 			"startGold": 500,
 			"score": 100
 		},
@@ -14,7 +14,7 @@
 			"id": 1,
 			"name": "오크의 침공",
 			"waves": [{ "monsterId": "orc", "count": 20, "delay": 1000 }],
-			"boss": { "monsterId": "orc", "healthMultiplier": 3, "damageMultiplier": 2 },
+			"boss": { "monsterId": "bigOrc", "healthMultiplier": 3, "damageMultiplier": 2 },
 			"startGold": 1000,
 			"score": 200
 		},
@@ -22,7 +22,7 @@
 			"id": 2,
 			"name": "언데드 습격",
 			"waves": [{ "monsterId": "skeleton", "count": 30, "delay": 1000 }],
-			"boss": { "monsterId": "skeleton", "healthMultiplier": 5, "damageMultiplier": 3 },
+			"boss": { "monsterId": "deathKnight", "healthMultiplier": 5, "damageMultiplier": 3 },
 			"startGold": 1500,
 			"score": 300
 		},
@@ -30,7 +30,7 @@
 			"id": 3,
 			"name": "엘프 기사단",
 			"waves": [{ "monsterId": "elf", "count": 25, "delay": 1000 }],
-			"boss": { "monsterId": "elf", "healthMultiplier": 4, "damageMultiplier": 2.5 },
+			"boss": { "monsterId": "highElf", "healthMultiplier": 4, "damageMultiplier": 2.5 },
 			"startGold": 2000,
 			"score": 400
 		},
@@ -38,7 +38,7 @@
 			"id": 4,
 			"name": "최후의 트롤",
 			"waves": [{ "monsterId": "troll", "count": 20, "delay": 1000 }],
-			"boss": { "monsterId": "troll", "healthMultiplier": 6, "damageMultiplier": 3.5 },
+			"boss": { "monsterId": "bloodTroll", "healthMultiplier": 6, "damageMultiplier": 3.5 },
 			"startGold": 2500,
 			"score": 500
 		},
@@ -46,13 +46,13 @@
 			"id": 5,
 			"name": "인간종 대침공",
 			"waves": [
-				{ "monsterId": "human", "count": 10, "delay": 1000 },
-				{ "monsterId": "orc", "count": 10, "delay": 1000 },
-				{ "monsterId": "skeleton", "count": 15, "delay": 1000 },
-				{ "monsterId": "elf", "count": 18, "delay": 1000 },
-				{ "monsterId": "troll", "count": 20, "delay": 1000 }
+				{ "monsterId": "general", "count": 10, "delay": 1000 },
+				{ "monsterId": "bigOrc", "count": 10, "delay": 1000 },
+				{ "monsterId": "deathKnight", "count": 15, "delay": 1000 },
+				{ "monsterId": "highElf", "count": 18, "delay": 1000 },
+				{ "monsterId": "bloodTroll", "count": 20, "delay": 1000 }
 			],
-			"boss": { "monsterId": "troll", "healthMultiplier": 6, "damageMultiplier": 3.5 },
+			"boss": { "monsterId": "theKing", "healthMultiplier": 6, "damageMultiplier": 3.5 },
 			"startGold": 3000,
 			"score": 600
 		}
