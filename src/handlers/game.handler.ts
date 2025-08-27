@@ -1,11 +1,11 @@
 import { v4 as uuid } from 'uuid';
 import { Server, Socket } from 'socket.io';
-import { getAssets } from '../init/assets.js';
-import { GameSession } from '../models/game.session.js';
-import { GAME } from '../constants.js';
+import { getAssets } from '../init/assets';
+import { GameSession } from '../models/game.session';
+import { GAME } from '../constants';
 import { GameStartPayload } from '../types/payloads.d';
-import { getStageData } from './stage.handler.js';
-import { gameLoop } from './gameLoop.handler.js';
+import { getStageData } from './stage.handler';
+import { gameLoop } from './gameLoop.handler';
 
 // 모든 활성 게임 세션을 저장합니다.
 export const activeSessions: Record<string, GameSession> = {};

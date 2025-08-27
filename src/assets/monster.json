@@ -6,17 +6,17 @@
 			"id": "elf",
 			"name": "엘프",
 			"health": 40,
-			"damage": 8,
+			"damage": 10,
 			"moveSpeed": 100,
 			"attackSpeed": 1400,
 			"goldDrop": 15,
-			"range":5
+			"range":200
 		},
 		{
 			"id": "orc",
 			"name": "오크",
 			"health": 100,
-			"damage": 20,
+			"damage": 50,
 			"moveSpeed": 50,
 			"attackSpeed": 1400,
 			"goldDrop": 30,

@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
-        "target": "es2020",
-        "module": "es2020",
+        "target": "esnext",
+        "module": "esnext",
         "rootDir": "./src",
         "outDir": "./dist",
         "strict": true,

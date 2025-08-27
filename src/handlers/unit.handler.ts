@@ -1,7 +1,7 @@
 import { Socket } from 'socket.io';
-import { activeSessions } from './game.handler.js';
+import { activeSessions } from './game.handler';
 import { SummonUnitPayload } from '../types/payloads';
-import { getAssets } from '../init/assets.js';
+import { getAssets } from '../init/assets';
 import { v4 as uuid } from 'uuid';
 import { ActiveAnimal } from '../types/data';
 

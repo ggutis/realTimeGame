@@ -1,11 +1,11 @@
 import { Server } from 'socket.io';
-import { activeSessions, endGame } from './game.handler.js';
-import { spawnMonstersForSession } from './monster.handler.js';
-import { getAssets } from '../init/assets.js';
+import { activeSessions, endGame } from './game.handler';
+import { spawnMonstersForSession } from './monster.handler';
+import { getAssets } from '../init/assets';
 import { ActiveAnimal, ActiveMonster } from '../types/data';
-import { GAME } from '../constants.js';
-import { calcDistance, findClosestTarget, isMeet } from './helper.js';
-import { completeStage } from './stage.handler.js';
+import { GAME } from '../constants';
+import { calcDistance, findClosestTarget, isMeet } from './helper';
+import { completeStage } from './stage.handler';
 
 // 게임 루프: 고정된 간격으로 게임 상태를 업데이트하고 클라이언트에 보냅니다.
 export const gameLoop = (io: Server): void => {
@@ -202,6 +202,8 @@ export const gameLoop = (io: Server): void => {
 					session.score += 10;
 				}
 			}
+
+			
 
 			// 유닛 사망 처리
 			const deadAnimals = Object.values(session.activeAnimals).filter((a) => a.health <= 0);

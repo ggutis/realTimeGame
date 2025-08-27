@@ -4,8 +4,8 @@
 	"main": "src/app.ts",
 	"scripts": {
 		"start": "node dist/app.js",
-		"build": "npm run copy-assets && tsc",
-		"dev": "npm run build && npm run start",
+		"build": "tsc",
+		"dev": "tsx src/app.ts",
 		"copy-assets": "copyfiles --up 1 \"assets/**/*\" dist"
 	},
 	"repository": {
@@ -31,7 +31,6 @@
 		"express": "^5.1.0",
 		"prisma": "^6.14.0",
 		"socket.io": "^4.8.1",
-		"ts-node": "^10.9.2",
 		"tsx": "^4.20.5",
 		"typescript": "^5.9.2",
 		"uuid": "^11.1.0"

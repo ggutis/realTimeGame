@@ -4,9 +4,9 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { Server, Socket } from 'socket.io';
 
-import { loadAssets } from './init/assets.js';
-import { handleSocketEvents } from './init/socket.js';
-import { GAME } from './constants.js';
+import { loadAssets } from './init/assets';
+import { handleSocketEvents } from './init/socket';
+import { GAME } from './constants';
 
 // ESM에서 __dirname과 __filename을 사용하기 위한 설정
 const __filename = fileURLToPath(import.meta.url);

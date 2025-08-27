@@ -1,7 +1,7 @@
-import { getAssets } from '../init/assets.js';
+import { getAssets } from '../init/assets';
 import { Stage } from '../types/data.d';
-import { GameSession } from '../models/game.session.js';
-import { activeSessions, endGame } from './game.handler.js';
+import { GameSession } from '../models/game.session';
+import { activeSessions, endGame } from './game.handler';
 import { Server, Socket } from 'socket.io';
 
 export function getStageData(stageId: number | string): Stage | undefined {

@@ -27,6 +27,10 @@ h1 {
     overflow: hidden;
     box-shadow: 0 10px 20px rgba(0,0,0,0.5);
     cursor: crosshair;
+    background-image: url('./images/Cartoon_Forest_BG_01.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
 }
 
 .unit, .monster {
@@ -190,6 +194,38 @@ h1 {
         opacity: 1;
     }
     to {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+}
+
+/* 데미지 숫자 효과 */
+.damage-number {
+    position: absolute;
+    color: red; /* 몬스터에게 입히는 데미지는 빨간색 */
+    font-size: 20px;
+    font-weight: bold;
+    text-shadow: 
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000;
+    pointer-events: none; /* 클릭 이벤트 방지 */
+    animation: floatUpAndFadeOut 1s forwards; /* 애니메이션 적용 */
+}
+
+/* 유닛이 입는 데미지 (몬스터의 공격) */
+.damage-number.unit-damage {
+    color: yellow; /* 유닛이 입는 데미지는 노란색 */
+}
+
+/* 애니메이션 정의 */
+@keyframes floatUpAndFadeOut {
+    0% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    100% {
         transform: translateY(-50px);
         opacity: 0;
     }

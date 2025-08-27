@@ -1,8 +1,8 @@
 import { Server, Socket } from 'socket.io';
 import { GameStartPayload, SummonUnitPayload } from '../types/payloads.d';
-import { startGame } from './game.handler.js';
-import { summonUnit } from './unit.handler.js';
-import { nextStageHandler } from './stage.handler.js';
+import { startGame } from './game.handler';
+import { summonUnit } from './unit.handler';
+import { nextStageHandler } from './stage.handler';
 
 // 이벤트 핸들러를 관리하는 중앙 집중식 매핑
 export const handlerMapping = (io: Server, socket: Socket) => {
