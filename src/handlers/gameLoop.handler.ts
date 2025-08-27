@@ -199,7 +199,7 @@ export const gameLoop = (io: Server): void => {
 				const monsterData = getAssets().monsters[monster.monsterId];
 				if (monsterData) {
 					session.gold += monsterData.goldDrop;
-					session.score += 10;
+					session.score += monsterData.score;
 				}
 			}
 

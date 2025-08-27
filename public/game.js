@@ -135,9 +135,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				const button = document.createElement('button');
 				button.className = 'summon-button';
 				button.onclick = () => {
-					isSummoning = true;
-					selectedAnimalId = animalId;
-					gameContainer.style.cursor = 'crosshair';
+					const summonPosition = { x: 100, y: 550 }; // 소환 위치를 고정값으로 설정 (예시)
+					socket.emit('game:summon', { animalId, position: summonPosition });
 				};
 
 				const img = document.createElement('img');
@@ -229,47 +228,46 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	};
 
-	gameContainer.addEventListener('click', (event) => {
-		if (!isSummoning || !selectedAnimalId) return;
+	// gameContainer.addEventListener('click', (event) => {
+	// 	if (!isSummoning || !selectedAnimalId) return;
 
-		const rect = gameContainer.getBoundingClientRect();
-		const position = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+	// 	const rect = gameContainer.getBoundingClientRect();
+	// 	const position = { x: event.clientX - rect.left, y: event.clientY - rect.top };
 
-		socket.emit('game:summon', { animalId: selectedAnimalId, position });
+	// 	socket.emit('game:summon', { animalId: selectedAnimalId, position });
 
-		isSummoning = false;
-		selectedAnimalId = null;
-		gameContainer.style.cursor = 'default';
-	});
+	// 	isSummoning = false;
+	// 	selectedAnimalId = null;
+	// 	gameContainer.style.cursor = 'default';
+	// });
 
 	function showDamageNumber(targetId, damage, isMonster) {
-	const targetElement = document.getElementById(targetId);
-	if (!targetElement) return;
+		const targetElement = document.getElementById(targetId);
+		if (!targetElement) return;
 
-	const damageElement = document.createElement('div');
-	damageElement.className = 'damage-number';
-	damageElement.textContent = damage;
+		const damageElement = document.createElement('div');
+		damageElement.className = 'damage-number';
+		damageElement.textContent = damage;
 
-	// 몬스터에게 입히는 데미지인지, 유닛이 입는 데미지인지 구분
-	if (!isMonster) {
-		damageElement.classList.add('unit-damage');
+		// 몬스터에게 입히는 데미지인지, 유닛이 입는 데미지인지 구분
+		if (!isMonster) {
+			damageElement.classList.add('unit-damage');
+		}
+
+		const targetRect = targetElement.getBoundingClientRect();
+		const containerRect = gameContainer.getBoundingClientRect();
+
+		// 숫자가 표시될 위치 계산
+		damageElement.style.left = `${targetRect.left - containerRect.left + targetRect.width / 2}px`;
+		damageElement.style.top = `${targetRect.top - containerRect.top}px`;
+
+		gameContainer.appendChild(damageElement);
+
+		// 애니메이션이 끝나면 요소 제거
+		damageElement.addEventListener('animationend', () => {
+			damageElement.remove();
+		});
 	}
-
-	const targetRect = targetElement.getBoundingClientRect();
-	const containerRect = gameContainer.getBoundingClientRect();
-
-	// 숫자가 표시될 위치 계산
-	damageElement.style.left = `${targetRect.left - containerRect.left + targetRect.width / 2}px`;
-	damageElement.style.top = `${targetRect.top - containerRect.top}px`;
-
-	gameContainer.appendChild(damageElement);
-
-	// 애니메이션이 끝나면 요소 제거
-	damageElement.addEventListener('animationend', () => {
-		damageElement.remove();
-	});
-}
-
 
 	function showModal(title, score, buttonText, callback) {
 		modalTitle.textContent = title;
@@ -283,4 +281,3 @@ document.addEventListener('DOMContentLoaded', () => {
 		modal.style.display = 'none';
 	}
 });
-
