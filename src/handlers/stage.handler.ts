@@ -1,21 +1,18 @@
 import { getAssets } from '../init/assets.js';
 import { Stage } from '../types/data.d';
 import { GameSession } from '../models/game.session.js';
-import { activeSessions , endGame } from './game.handler.js';
-import { Server , Socket } from 'socket.io';
-
+import { activeSessions, endGame } from './game.handler.js';
+import { Server, Socket } from 'socket.io';
 
 export function getStageData(stageId: number | string): Stage | undefined {
-    const assets = getAssets();
-    return assets.stages[stageId.toString()];
+	const assets = getAssets();
+	return assets.stages[stageId.toString()];
 }
-
-
 
 // 스테이지 완료 처리
 export function completeStage(session: GameSession) {
-    session.isStageCompleted = true;
-    console.log(`스테이지 ${session.currentStageId} 완료!`);
+	session.isStageCompleted = true;
+	console.log(`스테이지 ${session.currentStageId} 완료!`);
 }
 
 // 다음 스테이지로 이동하는 핸들러
@@ -58,13 +55,12 @@ export const nextStageHandler = (io: Server, socket: Socket, payload: { userId: 
 		);
 	}
 
-    // 스테이지 시작 골드 초기화
-    session.gold = nextStageData.startGold || 0; 
+	// 스테이지 시작 골드 초기화
+	session.gold = nextStageData.startGold || 0;
 
-     // 게임판 초기화: 몬스터와 유닛 제거
-    session.activeMonsters = {};
-    session.activeAnimals = {};
-
+	// 게임판 초기화: 몬스터와 유닛 제거
+	session.activeMonsters = {};
+	session.activeAnimals = {};
 
 	// 세션 상태 초기화
 	session.isStageCompleted = false;
@@ -76,7 +72,7 @@ export const nextStageHandler = (io: Server, socket: Socket, payload: { userId: 
 	socket.emit('game:stage_started', {
 		currentStageId: session.currentStageId,
 		userGold: session.gold,
-        unlockedAnimals: session.unlockedAnimals,
+		unlockedAnimals: session.unlockedAnimals,
 	});
 
 	console.log(`${payload.userId}가 다음 스테이지(${session.currentStageId})로 이동합니다.`);

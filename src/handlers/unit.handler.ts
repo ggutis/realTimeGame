@@ -5,7 +5,6 @@ import { getAssets } from '../init/assets.js';
 import { v4 as uuid } from 'uuid';
 import { ActiveAnimal } from '../types/data';
 
-
 // 유닛 소환 로직
 export const summonUnit = async (socket: Socket, payload: SummonUnitPayload): Promise<void> => {
 	const sessionId = Object.keys(activeSessions).find(
@@ -39,6 +38,7 @@ export const summonUnit = async (socket: Socket, payload: SummonUnitPayload): Pr
 		health: animalData.health,
 		damage: animalData.damage,
 		attackSpeed: 0,
+		type : animalData.type,
 		isMoving: true,
 		targetId: null,
 		position: {

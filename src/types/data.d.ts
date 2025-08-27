@@ -10,6 +10,7 @@ export interface Animal {
 	attackSpeed: number;
 	moveSpeed: number;
 	range: number;
+	type: string;
 }
 
 // 몬스터(침략자) 데이터
@@ -76,6 +77,7 @@ export interface ActiveAnimal {
 	isMoving: boolean;
 	targetId: string | null;
 	damage: number;
+	type: string;
 }
 
 export interface ActiveMonster {

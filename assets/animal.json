@@ -135,7 +135,7 @@
 			"type": "melee"
 		},
 		{
-			"id": "grizzelyBear",
+			"id": "grizzlyBear",
 			"name": "불곰",
 			"cost": 800,
 			"health": 500,
