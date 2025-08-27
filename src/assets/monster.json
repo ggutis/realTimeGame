@@ -10,7 +10,8 @@
 			"moveSpeed": 100,
 			"attackSpeed": 1400,
 			"goldDrop": 15,
-			"range":200
+			"range":200,
+			"score":80
 		},
 		{
 			"id": "orc",
@@ -18,9 +19,10 @@
 			"health": 100,
 			"damage": 50,
 			"moveSpeed": 50,
-			"attackSpeed": 1400,
+			"attackSpeed": 1400, 
 			"goldDrop": 30,
-			"range": 1
+			"range": 1,
+			"score":20
 		},
 		{
 			"id": "human",
@@ -30,7 +32,8 @@
 			"moveSpeed": 80,
 			"attackSpeed": 1400,
 			"goldDrop": 20,
-			"range":1
+			"range":1,
+			"score":10
 		},
 		{
 			"id": "troll",
@@ -40,7 +43,8 @@
 			"moveSpeed": 125,
 			"attackSpeed": 1400,
 			"goldDrop": 50,
-			"range":1
+			"range":1,
+			"score":100
 		},
 		{
 			"id": "skeleton",
@@ -50,7 +54,8 @@
 			"moveSpeed": 30,
 			"attackSpeed": 1400,
 			"goldDrop": 10,
-			"range":1
+			"range":1,
+			"score":50
 		}
 	]
 }

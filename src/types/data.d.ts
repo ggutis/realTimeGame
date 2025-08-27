@@ -23,6 +23,7 @@ export interface Monster {
 	attackSpeed: number;
 	goldDrop: number;
 	range: number;
+	score: number;
 }
 
 // 스테이지 웨이브 데이터
@@ -91,4 +92,5 @@ export interface ActiveMonster {
 	isAlive: boolean;
 	isMoving: boolean;
 	damage: number;
+	score: number;
 }
