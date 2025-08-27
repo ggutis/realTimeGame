@@ -230,3 +230,7 @@ h1 {
         opacity: 0;
     }
 }
+
+.monster.boss {
+    transform: scale(1.5);
+}

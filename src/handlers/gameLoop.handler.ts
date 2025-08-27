@@ -1,11 +1,11 @@
 import { Server } from 'socket.io';
 import { activeSessions, endGame } from './game.handler';
-import { spawnMonstersForSession } from './monster.handler';
+import { spawnBossForSession, spawnMonstersForSession } from './monster.handler';
 import { getAssets } from '../init/assets';
 import { ActiveAnimal, ActiveMonster } from '../types/data';
 import { GAME } from '../constants';
 import { calcDistance, findClosestTarget, isMeet } from './helper';
-import { completeStage } from './stage.handler';
+import { completeStage, getStageData } from './stage.handler';
 
 // 게임 루프: 고정된 간격으로 게임 상태를 업데이트하고 클라이언트에 보냅니다.
 export const gameLoop = (io: Server): void => {
@@ -215,6 +215,13 @@ export const gameLoop = (io: Server): void => {
 			if (session.baseHealth <= 0) {
 				session.isGameOver = true;
 				console.log('게임 오버!');
+			}
+
+			const stage = getStageData(session.currentStageId);
+			const allWavesDone = session.monsterSpawnQueue.length === 0 && !session.isSpawning;
+
+			if (allWavesDone && !session.bossSpawned && Object.keys(session.activeMonsters).length === 0) {
+				spawnBossForSession(session);
 			}
 
 			// 스테이지 완료 확인

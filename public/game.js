@@ -28,6 +28,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	const entityStates = {}; // 애니메이션과 위치 보간을 위한 상태 저장
 
+	const bossSpriteMapping = {
+		general: 'human',
+		bigOrc: 'orc',
+		deathKnight: 'skeleton',
+		highElf: 'elf',
+		bloodTroll: 'troll',
+		theKing: 'troll',
+	};
+
+	const getSpriteId = (monsterId) => {
+		return bossSpriteMapping[monsterId] || monsterId;
+	};
+
 	let lastTime = 0;
 	function renderLoop(currentTime) {
 		if (lastTime === 0) {
@@ -61,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					if (entityImg) {
 						const type = entityElement.classList.contains('unit') ? 'animals' : 'monster';
 						// entityId는 animalId (e.g. 'snake') 또는 monsterId (e.g. 'orc')
-						const entityId = state.entityId;
+						const entityId = getSpriteId(state.entityId);
 						entityImg.src = `./images/${type}/${entityId}${frameNumber}.png`;
 					}
 					state.lastFrameTime = now;
@@ -173,6 +186,10 @@ document.addEventListener('DOMContentLoaded', () => {
 				currentEntitiesMap[entity.id] = el;
 			}
 
+			if (type === 'monster' && entity.isBoss) {
+				el.classList.add('boss');
+			}
+
 			if (!entityStates[entity.id]) {
 				entityStates[entity.id] = {
 					targetPos: {},
@@ -206,7 +223,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		const img = document.createElement('img');
 		const folder = type === 'unit' ? 'animals' : 'monster';
-		img.src = `./images/${folder}/${entityId}00.png`; // 초기 이미지
+		const spriteId = getSpriteId(entityId);
+		img.src = `./images/${folder}/${spriteId}00.png`; // 초기 이미지
 		element.appendChild(img);
 
 		const healthBarContainer = document.createElement('div');
@@ -228,18 +246,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	};
 
-	// gameContainer.addEventListener('click', (event) => {
-	// 	if (!isSummoning || !selectedAnimalId) return;
-
-	// 	const rect = gameContainer.getBoundingClientRect();
-	// 	const position = { x: event.clientX - rect.left, y: event.clientY - rect.top };
-
-	// 	socket.emit('game:summon', { animalId: selectedAnimalId, position });
-
-	// 	isSummoning = false;
-	// 	selectedAnimalId = null;
-	// 	gameContainer.style.cursor = 'default';
-	// });
 
 	function showDamageNumber(targetId, damage, isMonster) {
 		const targetElement = document.getElementById(targetId);

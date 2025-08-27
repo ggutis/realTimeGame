@@ -19,6 +19,7 @@ export class GameSession {
     public monstersSpawnedInWave: number; // 현재 웨이브에서 소환된 몬스터 수
     public damageEvents: { targetId: string; damage: number }[];
     public bossMonsters: Record<string, ActiveBossMonster>;
+    public bossSpawned: boolean; 
 
     constructor(userId: string) {
         this.userId = userId;
@@ -39,6 +40,6 @@ export class GameSession {
         this.monstersSpawnedInWave = 0;
         this.damageEvents = [];
         this.bossMonsters = {};
-
+        this.bossSpawned = false;
     }
 }

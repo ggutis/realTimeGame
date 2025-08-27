@@ -35,7 +35,7 @@ export const spawnMonstersForSession = (session: GameSession): void => {
 						attackSpeed: monsterData.attackSpeed,
 						goldDrop: monsterData.goldDrop,
 						score: monsterData.score,
-						isBoss: monsterData.isBoss,
+						isBoss: false,
 						isAlive: true,
 						isMoving: true,
 						position: {
@@ -49,5 +49,35 @@ export const spawnMonstersForSession = (session: GameSession): void => {
 			}, wave.delay);
 		}
 	}
+};
+
+export const spawnBossForSession = (session: GameSession): void => {
+    const stage = getStageData(session.currentStageId);
+    if (!stage || !stage.boss) return;
+
+    const bossData = getAssets().monsters[stage.boss.monsterId];
+    if (!bossData) return;
+
+    const bossId = uuid();
+    const newBoss: ActiveMonster = {
+        id: bossId,
+        monsterId: bossData.id,
+        health: bossData.health * stage.boss.healthMultiplier,
+        damage: bossData.damage * stage.boss.damageMultiplier,
+        moveSpeed: bossData.moveSpeed,
+        attackSpeed: bossData.attackSpeed,
+        goldDrop: bossData.goldDrop,
+        score: bossData.score,
+        isBoss: true,
+        isAlive: true,
+        isMoving: true,
+        position: {
+            x: 800,
+            y: 450, // 중앙에 위치
+        },
+    };
+
+    session.activeMonsters[bossId] = newBoss;
+    session.bossSpawned = true;
 };
 
