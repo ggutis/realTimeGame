@@ -7,6 +7,7 @@ import { GameStartPayload } from '../types/payloads.d';
 import { getStageData } from './stage.handler';
 import { gameLoop } from './gameLoop.handler';
 import { redisClient } from '../app';
+import { updateLeaderboard } from './ranking.handler';
 
 // 모든 활성 게임 세션을 저장합니다.
 // export const activeSessions: Record<string, GameSession> = {};
@@ -94,6 +95,9 @@ export const endGame = async (io: Server, session: GameSession): Promise<void> =
 		isGameOver: session.isGameOver,
 		isStageCompleted: session.isStageCompleted,
 	});
+
+	// 게임 종료 시 최종 점수를 순위표에 업데이트합니다.
+	await updateLeaderboard(session.userId, session.score); // <-- 추가
 
 	// Redis에서 세션 정보 삭제
 	await deleteSession(session.socketId);
