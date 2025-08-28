@@ -1,18 +1,26 @@
 import { Server } from 'socket.io';
-import { activeSessions, endGame } from './game.handler';
+import { endGame, getSession, saveSession } from './game.handler';
 import { spawnBossForSession, spawnMonstersForSession } from './monster.handler';
 import { getAssets } from '../init/assets';
 import { ActiveAnimal, ActiveMonster } from '../types/data';
 import { GAME } from '../constants';
 import { calcDistance, findClosestTarget, isMeet } from './helper';
 import { completeStage, getStageData } from './stage.handler';
+import { redisClient } from '../app';
 
 // 게임 루프: 고정된 간격으로 게임 상태를 업데이트하고 클라이언트에 보냅니다.
-export const gameLoop = (io: Server): void => {
+export const gameLoop = async (io: Server): Promise<void> => {
+
+	const sessionKeys = await redisClient.keys('session:*');
 	// 모든 활성 세션을 순회합니다.
-	for (const sessionId in activeSessions) {
+	for (const sessionKey of sessionKeys)  {
 		try {
-			const session = activeSessions[sessionId];
+			const sessionId = sessionKey.replace('session:', '');
+			const session = await getSession(sessionId);
+
+			if (!session) {
+				continue;
+			}
 
 			// 게임 종료 또는 스테이지 클리어 상태일 경우 로직 스킵하고 정리
 			if (session.isGameOver) {
@@ -232,6 +240,10 @@ export const gameLoop = (io: Server): void => {
 
 			if (isStageDone && session.currentWaveIndex > 0 && !session.isStageCompleted) {
 				completeStage(session);
+
+				// 스테이지 완료 후 Redis에 세션 저장
+				await saveSession(session);
+
 				io.to(session.socketId).emit('game:end', {
 					score: session.score,
 					isGameOver: false,
@@ -239,6 +251,9 @@ export const gameLoop = (io: Server): void => {
 				});
 				continue;
 			}
+
+			// Redis에 업데이트된 세션 정보 저장
+			await saveSession(session);
 
 			// 클라이언트에 게임 상태 업데이트 전송
 			io.to(session.socketId).emit('game:state_update', {
@@ -249,7 +264,7 @@ export const gameLoop = (io: Server): void => {
 				score: session.score,
 				damageEvents: session.damageEvents,
 			});
-			session.damageEvents = []; // 이벤트 전송 후 초기화
+			session.damageEvents = [];
 		} catch (error) {
 			console.error(`게임 루프 중 오류 발생: ${error}`);
 		}

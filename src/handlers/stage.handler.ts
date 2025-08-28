@@ -1,7 +1,7 @@
 import { getAssets } from '../init/assets';
 import { Stage } from '../types/data.d';
 import { GameSession } from '../models/game.session';
-import { activeSessions, endGame } from './game.handler';
+import { endGame, getSession, saveSession } from './game.handler';
 import { Server, Socket } from 'socket.io';
 
 export function getStageData(stageId: number | string): Stage | undefined {
@@ -16,8 +16,10 @@ export function completeStage(session: GameSession) {
 }
 
 // 다음 스테이지로 이동하는 핸들러
-export const nextStageHandler = (io: Server, socket: Socket, payload: { userId: string }) => {
-	const session = activeSessions[payload.userId];
+export const nextStageHandler = async (io: Server, socket: Socket, payload: { userId: string }) => {
+	// Redis에서 세션 정보 가져오기
+	const session = await getSession(socket.id); 
+
 	if (!session) {
 		socket.emit('game:error', { message: '세션을 찾을 수 없습니다.' });
 		return;
@@ -67,6 +69,9 @@ export const nextStageHandler = (io: Server, socket: Socket, payload: { userId: 
 	session.monsterSpawnQueue = [...nextStageData.waves];
 	session.currentWaveIndex = 0;
 	session.monstersSpawnedInWave = 0;
+
+	// Redis에 업데이트된 세션 정보 저장
+    await saveSession(session);
 
 	// 클라이언트에게 다음 스테이지 시작을 알림 (선택적)
 	socket.emit('game:stage_started', {

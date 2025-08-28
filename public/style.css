@@ -232,5 +232,5 @@ h1 {
 }
 
 .monster.boss {
-    transform: scale(1.5);
+    transform: scale(2);
 }

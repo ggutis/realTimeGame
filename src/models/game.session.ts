@@ -18,8 +18,10 @@ export class GameSession {
     public spawnTimer: NodeJS.Timeout | null;
     public monstersSpawnedInWave: number; // 현재 웨이브에서 소환된 몬스터 수
     public damageEvents: { targetId: string; damage: number }[];
+    public attackEvents: { attackerId: string }[];
     public bossMonsters: Record<string, ActiveBossMonster>;
     public bossSpawned: boolean; 
+    public bossSpawnEffect: boolean;
 
     constructor(userId: string) {
         this.userId = userId;
@@ -39,7 +41,9 @@ export class GameSession {
         this.spawnTimer = null;
         this.monstersSpawnedInWave = 0;
         this.damageEvents = [];
+        this.attackEvents = [];
         this.bossMonsters = {};
         this.bossSpawned = false;
+        this.bossSpawnEffect = false;
     }
 }

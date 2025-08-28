@@ -1,5 +1,5 @@
 import { Server, Socket } from 'socket.io';
-import { startGame, endGame, activeSessions } from '../handlers/game.handler';
+import { startGame, endGame, getSession } from '../handlers/game.handler';
 import { summonUnit } from '../handlers/unit.handler';
 import { nextStageHandler } from '../handlers/stage.handler';
 
@@ -14,19 +14,19 @@ export function handleSocketEvents(io: Server) {
 
         socket.on('game:summon', (payload) => summonUnit(socket, payload));
 
-        socket.on('game:next_stage', (payload) => {
+        socket.on('game:next_stage', async (payload) => {
             // 다음 스테이지로 이동
-            const session = Object.values(activeSessions).find(s => s.socketId === socket.id);
+            const session = await getSession(socket.id);
             if (session) {
                 const nextStageId = payload.nextStageId;
                 nextStageHandler(io, socket, { userId: session.userId });
             }
         });
 
-        socket.on('disconnect', () => {
+        socket.on('disconnect', async () => {
             console.log(`소켓 연결이 끊어졌습니다: ${socket.id}`);
             // 연결이 끊긴 소켓에 해당하는 세션 찾기
-            const session = Object.values(activeSessions).find(s => s.socketId === socket.id);
+             const session = await getSession(socket.id);
             if (session) {
                 // 세션 종료 처리
                 endGame(io, session);

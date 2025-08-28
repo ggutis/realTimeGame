@@ -73,7 +73,7 @@ export const spawnBossForSession = (session: GameSession): void => {
         isMoving: true,
         position: {
             x: 800,
-            y: 450, // 중앙에 위치
+            y: 480,
         },
     };
 

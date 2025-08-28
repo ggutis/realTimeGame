@@ -1,5 +1,5 @@
 import { Socket } from 'socket.io';
-import { activeSessions } from './game.handler';
+import { getSession, saveSession } from './game.handler';
 import { SummonUnitPayload } from '../types/payloads';
 import { getAssets } from '../init/assets';
 import { v4 as uuid } from 'uuid';
@@ -7,15 +7,14 @@ import { ActiveAnimal } from '../types/data';
 
 // 유닛 소환 로직
 export const summonUnit = async (socket: Socket, payload: SummonUnitPayload): Promise<void> => {
-	const sessionId = Object.keys(activeSessions).find(
-		(key) => activeSessions[key].socketId === socket.id,
-	);
-	if (!sessionId) {
+	// 1. Redis에서 세션 정보 가져오기
+	const session = await getSession(socket.id);
+
+	if (!session) {
 		socket.emit('game:error', { message: '유효한 게임 세션을 찾을 수 없습니다.' });
 		return;
 	}
 
-	const session = activeSessions[sessionId];
 	const animalData = getAssets().animals[payload.animalId];
 
 	if (!animalData) {
@@ -47,6 +46,9 @@ export const summonUnit = async (socket: Socket, payload: SummonUnitPayload): Pr
 		},
 	};
 	session.activeAnimals[unitId] = newUnit;
+
+	// 2. Redis에 업데이트된 세션 정보 저장
+	await saveSession(session);
 
 	console.log(
 		`유닛 ${animalData.name} (ID: ${unitId})가 소환되었습니다. 남은 골드: ${session.gold}`,
