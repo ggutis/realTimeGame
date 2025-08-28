@@ -1,36 +1,41 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>동물 수비대: 실시간 게임</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="/socket.io/socket.io.js"></script>
-</head>
-<body>
-    <h1>동물 수비대</h1>
-    <div id="ui-container">
-        <div class="info-box">골드: <span id="gold">0</span></div>
-        <div class="info-box">기지 체력: <span id="base-health">100</span></div>
-        <div class="info-box">점수: <span id="score">0</span></div>
-        <div class="info-box">스테이지: <span id="stage">1</span></div>
-        
-            <!-- 유닛 소환 버튼들이 여기에 동적으로 추가됩니다 -->
-        </div>
-    </div>
-    <div id="game-container" ></div>
-    <div id="unit-buttons-container"></div>
-    
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>동물 수비대: 실시간 게임</title>
+		<link rel="stylesheet" href="style.css" />
+		<script src="/socket.io/socket.io.js"></script>
+	</head>
+	<body>
+		<div id="app-container">
+			<div id="main-content-container">
+				<h1>동물 수비대</h1>
+				<button id="start-game-btn">게임 시작</button>
+				<div id="ui-container">
+					<div class="info-box">골드: <span id="gold">0</span></div>
+					<div class="info-box">기지 체력: <span id="base-health">100</span></div>
+					<div class="info-box">점수: <span id="score">0</span></div>
+					<div class="info-box">스테이지: <span id="stage">1</span></div>
+				</div>
+				<div id="game-container"></div>
+				<div id="unit-buttons-container"></div>
+			</div>
+			<div id="leaderboard-container">
+				<h2>실시간 랭킹</h2>
+				<ul id="leaderboard-list"></ul>
+			</div>
+		</div>
 
-    <!-- 게임 종료/스테이지 클리어 모달 -->
-    <div id="game-modal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <h2 id="modal-title"></h2>
-            <p id="modal-score"></p>
-            <button id="modal-action-btn"></button>
-        </div>
-    </div>
+		<!-- 게임 종료/스테이지 클리어 모달 -->
+		<div id="game-modal" class="modal" style="display: none">
+			<div class="modal-content">
+				<h2 id="modal-title"></h2>
+				<p id="modal-score"></p>
+				<button id="modal-action-btn"></button>
+			</div>
+		</div>
 
-    <script src="game.js"></script>
-</body>
+		<script src="game.js"></script>
+	</body>
 </html>

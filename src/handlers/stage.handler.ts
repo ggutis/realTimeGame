@@ -3,6 +3,7 @@ import { Stage } from '../types/data.d';
 import { GameSession } from '../models/game.session';
 import { endGame, getSession, saveSession } from './game.handler';
 import { Server, Socket } from 'socket.io';
+import { updateLeaderboard } from './ranking.handler';
 
 export function getStageData(stageId: number | string): Stage | undefined {
 	const assets = getAssets();
@@ -10,8 +11,9 @@ export function getStageData(stageId: number | string): Stage | undefined {
 }
 
 // 스테이지 완료 처리
-export function completeStage(session: GameSession) {
+export async function completeStage(session: GameSession) {
 	session.isStageCompleted = true;
+	await updateLeaderboard(session.userId, session.score);
 	console.log(`스테이지 ${session.currentStageId} 완료!`);
 }
 

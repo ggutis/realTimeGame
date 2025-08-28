@@ -25,8 +25,8 @@ export function handleSocketEvents(io: Server) {
 
         // 랭킹 조회 이벤트 핸들러
         socket.on('ranking:get', async (payload) => {
-            const leaderboard = await getLeaderboard(payload.count || 10);
-            socket.emit('ranking:list', { leaderboard });
+                        const leaderboard = await getLeaderboard(payload?.count || 10);
+                        socket.emit('ranking:update', { leaderboard });
         });
 
 		socket.on('disconnect', async () => {

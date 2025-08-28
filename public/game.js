@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const scoreEl = document.getElementById('score');
 	const stageEl = document.getElementById('stage'); // 스테이지 표시 엘리먼트
 	const unitButtonsContainer = document.getElementById('unit-buttons-container');
+	const leaderboardList = document.getElementById('leaderboard-list');
 
 	// Modal elements
 	const modal = document.getElementById('game-modal');
@@ -85,9 +86,21 @@ document.addEventListener('DOMContentLoaded', () => {
 		requestAnimationFrame(renderLoop);
 	}
 
+		const startGameBtn = document.getElementById('start-game-btn');
+
+    let userId = localStorage.getItem('userId');
+    if (!userId) {
+        userId = prompt('사용자 이름을 입력하세요:') || 'guest-user';
+        localStorage.setItem('userId', userId);
+    }
+
 	socket.on('connect', () => {
 		console.log('서버에 연결되었습니다.');
-		socket.emit('game:start', { userId: 'guest-user' });
+	});
+
+	startGameBtn.addEventListener('click', () => {
+		socket.emit('game:start', { userId });
+		startGameBtn.style.display = 'none'; // Hide the button after starting
 	});
 
 	socket.on('game:start_success', (payload) => {
@@ -96,6 +109,13 @@ document.addEventListener('DOMContentLoaded', () => {
 		goldEl.textContent = payload.userGold;
 		stageEl.textContent = payload.currentStageId || 1;
 		renderSummonButtons(payload.unlockedAnimals);
+
+		// Request leaderboard for the first time
+		requestLeaderboard();
+
+		// Update leaderboard every 10 seconds
+		setInterval(requestLeaderboard, 10000);
+
 		// 게임 루프 시작
 		requestAnimationFrame(renderLoop);
 	});
@@ -118,12 +138,12 @@ document.addEventListener('DOMContentLoaded', () => {
 	socket.on('game:end', (payload) => {
 		if (payload.isGameOver) {
 			showModal('게임 종료!', `점수: ${payload.score}`, '다시 시작', () => {
-				socket.emit('game:start', { userId: 'guest-user' });
+				socket.emit('game:start', { userId });
 				hideModal();
 			});
 		} else if (payload.isStageCompleted) {
 			showModal('스테이지 클리어!', `점수: ${payload.score}`, '다음 스테이지', () => {
-				socket.emit('game:next_stage', { userId: 'guest-user' });
+				socket.emit('game:next_stage', { userId });
 				hideModal();
 			});
 		}
@@ -138,6 +158,33 @@ document.addEventListener('DOMContentLoaded', () => {
 	socket.on('game:error', (payload) => {
 		console.error('게임 오류:', payload.message);
 		showModal('게임 오류', payload.message, '확인', hideModal);
+	});
+
+	// Leaderboard
+	function updateLeaderboard(leaderboardData) {
+		if (!leaderboardList) return;
+
+		leaderboardList.innerHTML = ''; // Clear existing list
+
+		leaderboardData.forEach((entry, index) => {
+			const [userId, score] = entry;
+			const li = document.createElement('li');
+			li.textContent = `${index + 1}. ${userId} - ${score}`;
+			leaderboardList.appendChild(li);
+		});
+	}
+
+	function requestLeaderboard() {
+		socket.emit('ranking:get');
+	}
+
+	// Listen for leaderboard updates
+	socket.on('ranking:update', (data) => {
+		updateLeaderboard(data.leaderboard);
+	});
+
+	socket.on('ranking:error', (error) => {
+		console.error('Ranking error:', error.message);
 	});
 
 	const renderSummonButtons = (unlockedAnimals) => {
@@ -245,7 +292,6 @@ document.addEventListener('DOMContentLoaded', () => {
 			healthBar.style.width = `${percentage}%`;
 		}
 	};
-
 
 	function showDamageNumber(targetId, damage, isMonster) {
 		const targetElement = document.getElementById(targetId);

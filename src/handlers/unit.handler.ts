@@ -42,7 +42,7 @@ export const summonUnit = async (socket: Socket, payload: SummonUnitPayload): Pr
 		targetId: null,
 		position: {
 			x: 100, // 고정된 x 위치
-			y: 500,
+			y: 300,
 		},
 	};
 	session.activeAnimals[unitId] = newUnit;

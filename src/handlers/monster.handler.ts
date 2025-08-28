@@ -8,10 +8,9 @@ import { v4 as uuid } from 'uuid';
 export const spawnMonstersForSession = (session: GameSession): void => {
 	const currentStage = getStageData(session.currentStageId);
 
-	  if (!currentStage) {
-        return;
-    }
-
+	if (!currentStage) {
+		return;
+	}
 
 	if (!session.isSpawning && session.monsterSpawnQueue.length > 0 && currentStage) {
 		const wave = session.monsterSpawnQueue.shift();
@@ -50,7 +49,7 @@ export const spawnMonstersForSession = (session: GameSession): void => {
 					isMoving: true,
 					position: {
 						x: 800,
-						y: 500,
+						y: 300,
 					},
 				};
 				session.activeMonsters[monsterId] = newMonster;
@@ -61,34 +60,32 @@ export const spawnMonstersForSession = (session: GameSession): void => {
 	}
 };
 
-
 export const spawnBossForSession = (session: GameSession): void => {
 	const stage = getStageData(session.currentStageId);
 	if (!stage || !stage.boss) return;
 
-    const bossData = getAssets().monsters[stage.boss.monsterId];
-    if (!bossData) return;
+	const bossData = getAssets().monsters[stage.boss.monsterId];
+	if (!bossData) return;
 
-    const bossId = uuid();
-    const newBoss: ActiveMonster = {
-        id: bossId,
-        monsterId: bossData.id,
-        health: bossData.health * stage.boss.healthMultiplier,
-        damage: bossData.damage * stage.boss.damageMultiplier,
-        moveSpeed: bossData.moveSpeed,
-        attackSpeed: bossData.attackSpeed,
-        goldDrop: bossData.goldDrop,
-        score: bossData.score,
-        isBoss: true,
-        isAlive: true,
-        isMoving: true,
-        position: {
-            x: 800,
-            y: 480,
-        },
-    };
+	const bossId = uuid();
+	const newBoss: ActiveMonster = {
+		id: bossId,
+		monsterId: bossData.id,
+		health: bossData.health * stage.boss.healthMultiplier,
+		damage: bossData.damage * stage.boss.damageMultiplier,
+		moveSpeed: bossData.moveSpeed,
+		attackSpeed: bossData.attackSpeed,
+		goldDrop: bossData.goldDrop,
+		score: bossData.score,
+		isBoss: true,
+		isAlive: true,
+		isMoving: true,
+		position: {
+			x: 800,
+			y: 300,
+		},
+	};
 
-    session.activeMonsters[bossId] = newBoss;
-    session.bossSpawned = true;
+	session.activeMonsters[bossId] = newBoss;
+	session.bossSpawned = true;
 };
-
