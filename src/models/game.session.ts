@@ -22,6 +22,7 @@ export class GameSession {
     public bossMonsters: Record<string, ActiveBossMonster>;
     public bossSpawned: boolean; 
     public bossSpawnEffect: boolean;
+    public lastMonsterSpawnTime: number;
 
     constructor(userId: string) {
         this.userId = userId;
@@ -45,5 +46,6 @@ export class GameSession {
         this.bossMonsters = {};
         this.bossSpawned = false;
         this.bossSpawnEffect = false;
+        this.lastMonsterSpawnTime = 0;
     }
 }
