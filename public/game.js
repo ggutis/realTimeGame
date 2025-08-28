@@ -12,7 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	const modal = document.getElementById('game-modal');
 	const modalTitle = document.getElementById('modal-title');
 	const modalScore = document.getElementById('modal-score');
-	const modalBtn = document.getElementById('modal-action-btn');
+		const modalBtn = document.getElementById('modal-action-btn');
+	const modalCloseBtn = document.getElementById('modal-close-btn');
 
 	let isSummoning = false;
 	let selectedAnimalId = null;
@@ -103,6 +104,16 @@ document.addEventListener('DOMContentLoaded', () => {
 		startGameBtn.style.display = 'none'; // Hide the button after starting
 	});
 
+	function requestLeaderboard() {
+		socket.emit('ranking:get');
+	}
+
+	// 서버 연결 시 랭킹 데이터를 바로 요청
+    socket.on('connect', () => {
+        console.log('서버에 연결되었습니다.');
+        requestLeaderboard(); // 연결되자마자 랭킹 요청
+    });
+
 	socket.on('game:start_success', (payload) => {
 		console.log('게임이 시작되었습니다.', payload);
 		gameAssets = payload.gameAssets;
@@ -113,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		// Request leaderboard for the first time
 		requestLeaderboard();
 
-		// Update leaderboard every 10 seconds
+		// 10초마다 랭킹 업데이트 요청
 		setInterval(requestLeaderboard, 10000);
 
 		// 게임 루프 시작
@@ -136,17 +147,46 @@ document.addEventListener('DOMContentLoaded', () => {
 	});
 
 	socket.on('game:end', (payload) => {
+		const startGameBtn = document.getElementById('start-game-btn');
+		const closeAction = () => {
+			hideModal();
+			startGameBtn.style.display = 'block';
+		};
+
 		if (payload.isGameOver) {
-			showModal('게임 종료!', `점수: ${payload.score}`, '다시 시작', () => {
-				socket.emit('game:start', { userId });
-				hideModal();
-			});
+			showModal(
+				'게임 종료!',
+				`점수: ${payload.score}`,
+				'다시 시작',
+				() => {
+					socket.emit('game:start', { userId });
+					hideModal();
+				},
+				closeAction,
+			);
 		} else if (payload.isStageCompleted) {
-			showModal('스테이지 클리어!', `점수: ${payload.score}`, '다음 스테이지', () => {
-				socket.emit('game:next_stage', { userId });
-				hideModal();
-			});
+			showModal(
+				'스테이지 클리어!',
+				`점수: ${payload.score}`,
+				'다음 스테이지',
+				() => {
+					socket.emit('game:next_stage', { userId });
+					hideModal();
+				},
+				closeAction,
+			);
 		}
+	});
+
+	// 새로운 최고 점수 달성 이벤트를 수신합니다.
+	socket.on('game:high_score', (payload) => {
+		console.log('새로운 최고 점수 달성:', payload.message, payload.score);
+		showModal(
+			'🎉 최고 점수 달성!',
+			`축하합니다! 새로운 최고 점수: ${payload.score}`,
+			'확인',
+			hideModal
+		);
 	});
 
 	socket.on('game:stage_started', (payload) => {
@@ -174,9 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	}
 
-	function requestLeaderboard() {
-		socket.emit('ranking:get');
-	}
+	
 
 	// Listen for leaderboard updates
 	socket.on('ranking:update', (data) => {
@@ -321,11 +359,19 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	}
 
-	function showModal(title, score, buttonText, callback) {
+	function showModal(title, score, buttonText, callback, closeCallback) {
 		modalTitle.textContent = title;
 		modalScore.textContent = score;
 		modalBtn.textContent = buttonText;
 		modalBtn.onclick = callback;
+
+		if (closeCallback) {
+			modalCloseBtn.style.display = 'inline-block';
+			modalCloseBtn.onclick = closeCallback;
+		} else {
+			modalCloseBtn.style.display = 'none';
+		}
+
 		modal.style.display = 'flex';
 	}
 

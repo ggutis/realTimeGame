@@ -8,6 +8,7 @@ import { loadAssets } from './init/assets';
 import { handleSocketEvents } from './init/socket';
 import { GAME } from './constants';
 import Redis from 'ioredis';
+import router from './routers/cache.router';
 
 // ESM에서 __dirname과 __filename을 사용하기 위한 설정
 const __filename = fileURLToPath(import.meta.url);
@@ -37,6 +38,8 @@ export { redisClient };
 
 // public 디렉토리의 정적 파일 제공
 app.use(express.static(path.join(__dirname, '../public')));
+
+app.use('/api', router);
 
 // Redis 연결 상태를 확인하고 서버를 시작하는 함수
 async function main() {

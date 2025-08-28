@@ -97,7 +97,16 @@ export const endGame = async (io: Server, session: GameSession): Promise<void> =
 	});
 
 	// 게임 종료 시 최종 점수를 순위표에 업데이트합니다.
-	await updateLeaderboard(session.userId, session.score); // <-- 추가
+	const isNewHighScore = await updateLeaderboard(session.userId, session.score);
+
+	// 새 하이스코어를 달성했다면 클라이언트에 알림
+	if (isNewHighScore) {
+		io.to(session.socketId).emit('game:high_score', {
+			message: '축하합니다! 새로운 최고 점수를 달성했습니다!',
+			score: session.score,
+		});
+		console.log(`새로운 최고 점수 달성: 유저${session.userId}, 점수${session.score}`);
+	}
 
 	// Redis에서 세션 정보 삭제
 	await deleteSession(session.socketId);

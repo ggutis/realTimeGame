@@ -230,6 +230,35 @@ h1 {
 	background-color: #3498db;
 }
 
+#modal-close-btn {
+	padding: 12px 25px;
+	font-size: 1.2em;
+	background-color: #2980b9;
+	border: none;
+	border-radius: 10px;
+	color: white;
+	cursor: pointer;
+	transition: background-color 0.2s;
+	margin-top: 15px;
+}
+
+#modal-close-btn:hover {
+	background-color: #3498db;
+}
+
+#start-game-btn {
+	padding: 12px 25px;
+	font-size: 1.2em;
+	background-color: #2980b9;
+	border: none;
+	border-radius: 10px;
+	color: white;
+	cursor: pointer;
+	transition: background-color 0.2s;
+	margin-top: 15px;
+}
+
+
 /* Damage Number Styles */
 .damage-number {
 	position: absolute;
