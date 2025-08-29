@@ -54,6 +54,7 @@ export function handleMonsterLogic(session: {
             if (distance < minDistanceToAnimal) {
                 minDistanceToAnimal = distance;
                 nearestAnimal = animal;
+                
             }
         }
 

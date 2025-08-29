@@ -17,7 +17,7 @@ export class GameSession {
     public isStageCompleted: boolean;
     public spawnTimer: NodeJS.Timeout | null;
     public monstersSpawnedInWave: number; // 현재 웨이브에서 소환된 몬스터 수
-    public damageEvents: { targetId: string; damage: number }[];
+    public damageEvents: [];
     public attackEvents: { attackerId: string }[];
     public bossMonsters: Record<string, ActiveBossMonster>;
     public bossSpawned: boolean; 

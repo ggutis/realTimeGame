@@ -11,6 +11,7 @@ export function handleBattle(session: GameSession) {
         if (monsterData) {
             session.gold += monsterData.goldDrop;
             session.score += monsterData.score;
+            
         }
     }
 
