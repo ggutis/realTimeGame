@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+// 게임 내 기본 엔티티 (유닛, 몬스터)의 위치를 정의합니다.
+message Position {
+  int32 x = 1;
+  int32 y = 2;
+}
+
+// 동물이자 플레이어의 유닛을 정의합니다.
+message Animal {
+  string id = 1;
+  string animalId = 2; // 예를 들어 "cat", "dog"
+  int32 health = 3;
+  Position position = 4;
+}
+
+// 몬스터를 정의합니다.
+message Monster {
+  string id = 1;
+  string monsterId = 2; // 예를 들어 "orc", "goblin"
+  int32 health = 3;
+  Position position = 4;
+}
+
+// 데미지 이벤트를 정의합니다.
+message DamageEvent {
+  string targetId = 1;
+  int32 damage = 2;
+  bool isMonster = 3; // 몬스터인지 여부 (true: 몬스터, false: 유닛)
+}
+
+// 클라이언트에게 전송되는 전체 게임 상태 업데이트 메시지입니다.
+message GameStateUpdate {
+  map<string, Animal> animals = 1;
+  map<string, Monster> monsters = 2;
+  int32 gold = 3;
+  int32 baseHealth = 4;
+  int32 score = 5;
+  int32 stage = 6;
+  repeated DamageEvent damageEvents = 7;
+}
+
+// 게임 시작 요청 메시지
+message GameStartRequest {
+  string userId = 1;
+}
+
+// 유닛 소환 요청 메시지
+message SummonUnitRequest {
+  string animalId = 1;
+  Position position = 2;
+}
+
+// 게임 종료/스테이지 클리어 메시지
+message GameEndEvent {
+  int32 score = 1;
+  bool isGameOver = 2;
+  bool isStageCompleted = 3;
+}

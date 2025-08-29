@@ -6,7 +6,8 @@
 		"start": "node dist/app.js",
 		"build": "tsc",
 		"dev": "tsx src/app.ts",
-		"copy-assets": "copyfiles --up 1 \"assets/**/*\" dist"
+		"copy-assets": "copyfiles --up 1 \"assets/**/*\" dist",
+		"protoc": "protoc --ts_out src/generated --ts_opt long_type_string --proto_path src/proto src/proto/*.proto"
 	},
 	"repository": {
 		"type": "git",
@@ -22,6 +23,8 @@
 	"description": "",
 	"type": "module",
 	"dependencies": {
+		"@protobuf-ts/plugin": "^2.11.1",
+		"@protobuf-ts/runtime": "^2.11.1",
 		"@types/express": "^5.0.3",
 		"@types/node": "^24.3.0",
 		"@types/uuid": "^10.0.0",
@@ -29,6 +32,7 @@
 		"dotenv": "^17.2.1",
 		"express": "^5.1.0",
 		"ioredis": "^5.7.0",
+		"protocol-buffers-encodings": "^1.2.0",
 		"socket.io": "^4.8.1",
 		"tsx": "^4.20.5",
 		"typescript": "^5.9.2",

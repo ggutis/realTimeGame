@@ -3,12 +3,13 @@ import http from 'http';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { Server, Socket } from 'socket.io';
-
 import { loadAssets } from './init/assets';
 import { handleSocketEvents } from './init/socket';
 import { GAME } from './constants';
 import Redis from 'ioredis';
 import router from './routers/cache.router';
+import { proto } from './generated/game'
+
 
 // ESM에서 __dirname과 __filename을 사용하기 위한 설정
 const __filename = fileURLToPath(import.meta.url);

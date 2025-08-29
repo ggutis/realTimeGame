@@ -2,6 +2,7 @@
 import { getAssets } from '../../init/assets';
 import { GameSession } from '../../models/game.session';
 
+
 export function handleBattle(session: GameSession) {
     // 몬스터 사망 처리 및 골드/점수 획득
     const deadMonsters = Object.values(session.activeMonsters).filter((m) => m.health <= 0);
