@@ -1,5 +1,5 @@
 
-import { ActiveAnimal, ActiveMonster } from '../../types/data';
+import { ActiveAnimal, ActiveMonster, DamageEvent } from '../../types/data';
 import { getAssets } from '../../init/assets';
 import { GAME } from '../../constants';
 import { calcDistance } from '../helper';
@@ -7,6 +7,7 @@ import { calcDistance } from '../helper';
 export function handleAnimalLogic(session: {
     activeAnimals: { [key: string]: ActiveAnimal };
     activeMonsters: { [key: string]: ActiveMonster };
+    damageEvents: DamageEvent[];
 }) {
     const UNIT_BUFFER_DISTANCE = 10;
 
@@ -45,6 +46,12 @@ export function handleAnimalLogic(session: {
                 animal.isMoving = false;
                 if (animal.attackSpeed <= 0) {
                     nearestMonster.health -= animalData.damage;
+                    const damageEvent: DamageEvent = {
+                        targetId: nearestMonster.id,
+                        damage: animalData.damage,
+                        position: nearestMonster.position,
+                    };
+                    session.damageEvents.push(damageEvent);
                     animal.attackSpeed = animalData.attackSpeed;
                 }
             } else if (nearestFriendlyAnimal?.type === animal.type && minDistanceToFriendly < UNIT_BUFFER_DISTANCE) {

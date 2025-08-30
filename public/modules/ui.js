@@ -76,8 +76,9 @@ export function updateLeaderboard(leaderboardData) {
     });
 }
 
-export function showDamageNumber(targetId, damage, isMonster) {
-    const targetElement = document.getElementById(targetId);
+export function showDamageNumber(targetId, damage, isMonster, currentEntities) {
+    const entityMap = isMonster ? currentEntities.monsters : currentEntities.animals;
+    const targetElement = entityMap[targetId];
     if (!targetElement) return;
 
     const damageElement = document.createElement('div');

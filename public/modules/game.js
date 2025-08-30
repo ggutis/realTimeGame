@@ -5,6 +5,7 @@ let currentEntities = {
     animals: {},
     monsters: {},
 };
+let damageIndicators = [];
 
 let gameAssets = {
     animals: {},
@@ -31,8 +32,16 @@ export function getGameAssets() {
     return gameAssets;
 }
 
+export function addDamageIndicator(event) {
+    damageIndicators.push({ ...event, lifetime: 60 }); // 60 frames lifetime
+}
+
 export function isMonster(entityId) {
     return !!currentEntities.monsters[entityId];
+}
+
+export function getCurrentEntities() {
+    return currentEntities;
 }
 
 export function updateEntities(entities, type) {
@@ -41,5 +50,9 @@ export function updateEntities(entities, type) {
 }
 
 export function renderLoop(currentTime) {
-    renderer.renderLoop(currentTime, currentEntities);
+    // Update and filter damage indicators
+    damageIndicators = damageIndicators.filter((indicator) => indicator.lifetime > 0);
+    damageIndicators.forEach((indicator) => indicator.lifetime--);
+
+    renderer.renderLoop(currentTime, currentEntities, damageIndicators);
 }

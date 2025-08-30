@@ -125,3 +125,9 @@ export interface ActiveBossMonster {
 	score: number;
 	isBoss: boolean;
 }
+
+export interface DamageEvent {
+	targetId: string;
+	damage: number;
+	position: Position;
+}

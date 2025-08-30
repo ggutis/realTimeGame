@@ -2,10 +2,10 @@ import { Server } from 'socket.io';
 import { endGame, getSession, saveSession } from './game.handler';
 import { spawnMonstersForSession } from './monster.handler';
 import { redisClient } from '../app';
-import { handleAnimalLogic } from './gameLoop/animal.handler';
-import { handleMonsterLogic } from './gameLoop/monster.handler';
-import { handleBattle } from './gameLoop/battle.handler';
-import { handleStage } from './gameLoop/stage.handler';
+import { handleStage } from './gameLoop/forLoopStage.handler';
+import { handleBattle } from './gameLoop/forLoopBattle.handler';
+import { handleMonsterLogic } from './gameLoop/forLoopMonster.handler';
+import { handleAnimalLogic } from './gameLoop/forLoopAnimal.handler';
 
 // 게임 루프: 고정된 간격으로 게임 상태를 업데이트하고 클라이언트에 보냅니다.
 export const gameLoop = async (io: Server): Promise<void> => {

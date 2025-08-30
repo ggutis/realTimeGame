@@ -32,7 +32,7 @@ export function setupSocket(socket, ui, game, onSummon) {
         if (gameState.damageEvents) {
             gameState.damageEvents.forEach((event) => {
                 const isMonster = game.isMonster(event.targetId);
-                ui.showDamageNumber(event.targetId, event.damage, isMonster);
+                ui.showDamageNumber(event.targetId, event.damage, isMonster, game.getCurrentEntities());
             });
         }
     });
