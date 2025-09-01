@@ -141,7 +141,3 @@ export interface Damage {
 	damage:number
 }
 
-export interface Damage {
-	targetId: string;
-	damage:number
-}
