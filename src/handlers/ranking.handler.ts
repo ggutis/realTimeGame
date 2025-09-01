@@ -5,13 +5,13 @@ const LEADERBOARD_KEY = 'leaderboard';
 
 //사용자 점수 순위표 업데이트
 export const updateLeaderboard = async (userId: string, score: number): Promise<boolean> => {
-  const currentScore = await redisClient.zscore(LEADERBOARD_KEY, userId);
-  if (currentScore === null || score > parseInt(currentScore, 10)) {
-    await redisClient.zadd(LEADERBOARD_KEY, score, userId);
-    console.log(`순위표 업데이트: 유저${userId}, 점수${score}`);
-    return true; // 점수가 업데이트되었음을 반환
-  }
-  return false; // 점수가 업데이트되지 않았음을 반환
+	const currentScore = await redisClient.zscore(LEADERBOARD_KEY, userId);
+	if (currentScore === null || score > parseInt(currentScore, 10)) {
+		await redisClient.zadd(LEADERBOARD_KEY, score, userId);
+		console.log(`순위표 업데이트: 유저${userId}, 점수${score}`);
+		return true; // 점수가 업데이트되었음을 반환
+	}
+	return false; // 점수가 업데이트되지 않았음을 반환
 };
 
 // 순위표 조회
@@ -48,4 +48,3 @@ export const getLeaderboardHandler = async (socket: Socket) => {
 		socket.emit('ranking:error', { message: 'Could not retrieve leaderboard.' });
 	}
 };
-

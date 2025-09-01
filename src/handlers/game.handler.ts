@@ -9,6 +9,8 @@ import { gameLoop } from './gameLoop.handler';
 import { redisClient } from '../app';
 import { updateLeaderboard } from './ranking.handler';
 
+
+
 // 모든 활성 게임 세션을 저장합니다.
 // export const activeSessions: Record<string, GameSession> = {};
 let gameLoopInterval: NodeJS.Timeout | null = null;
