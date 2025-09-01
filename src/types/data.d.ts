@@ -140,3 +140,8 @@ export interface Damage {
 	targetId: string;
 	damage:number
 }
+
+export interface Damage {
+	targetId: string;
+	damage:number
+}
